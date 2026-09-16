@@ -1,0 +1,1218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>NeuroGrid IQ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#070912; --panel:#0f1324; --panel2:#161b33; --line:#242b4d;
+    --txt:#e8ecff; --muted:#7c86b8;
+    --accent:#4de2c0; --accent2:#7b6cff; --warn:#ff5c7a; --good:#39e58c; --gold:#ffd166;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{
+    background:
+      radial-gradient(900px 500px at 15% -10%, #1a1f45 0%, transparent 60%),
+      radial-gradient(800px 500px at 90% 110%, #2a1740 0%, transparent 55%),
+      var(--bg);
+    color:var(--txt);font-family:'Outfit',system-ui,-apple-system,sans-serif;
+    display:flex;align-items:center;justify-content:center;
+    min-height:100dvh;padding:16px;overflow-x:hidden;
+  }
+  .app{
+    width:100%;max-width:520px;
+    background:linear-gradient(180deg,rgba(22,27,51,.85),rgba(15,19,36,.95));
+    border:1px solid var(--line);border-radius:24px;padding:20px;
+    backdrop-filter:blur(12px);box-shadow:0 30px 80px rgba(0,0,0,.6);
+    position:relative;overflow:hidden;max-height:96dvh;overflow-y:auto;
+  }
+  .screen{display:none;animation:fade .35s ease}
+  .screen.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+  .logo{display:flex;align-items:center;gap:10px;justify-content:center;margin-bottom:6px}
+  .logo i{width:12px;height:12px;border-radius:4px;display:block}
+  .logo i:nth-child(1){background:var(--accent);box-shadow:0 0 24px rgba(77,226,192,.35)}
+  .logo i:nth-child(2){background:var(--accent2)}
+  .logo i:nth-child(3){background:var(--warn)}
+  h1{font-size:30px;font-weight:800;text-align:center;letter-spacing:-.5px;
+     background:linear-gradient(90deg,#fff,#8ea0ff 60%,#4de2c0);
+     -webkit-background-clip:text;background-clip:text;color:transparent}
+  .tag{text-align:center;color:var(--muted);font-size:13.5px;margin:8px 0 20px;line-height:1.5}
+
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+  .stat{background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:12px 8px;text-align:center}
+  .stat b{display:block;font-size:19px;font-weight:800;color:var(--accent)}
+  .stat span{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px}
+
+  .btn{
+    width:100%;padding:15px;border:none;border-radius:15px;
+    font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;
+    background:linear-gradient(135deg,var(--accent),#39b8ff);
+    color:#04121a;transition:.18s;letter-spacing:.3px;
+    box-shadow:0 10px 30px rgba(77,226,192,.25);
+  }
+  .btn:hover{transform:translateY(-2px);box-shadow:0 14px 36px rgba(77,226,192,.35)}
+  .btn:active{transform:scale(.98)}
+  .btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+  .btn.ghost{background:transparent;border:1px solid var(--line);color:var(--txt);box-shadow:none}
+  .btn.ghost:hover{border-color:var(--accent);color:var(--accent)}
+  .btn.gold{background:linear-gradient(135deg,#ffd166,#ff9f1c);color:#3a2000;box-shadow:0 10px 30px rgba(255,159,28,.35)}
+  .btn+.btn{margin-top:10px}
+
+  .field{margin-bottom:12px}
+  .field label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted);margin-bottom:6px;font-weight:600}
+  .field input{
+    width:100%;padding:13px 15px;border-radius:12px;border:1px solid var(--line);
+    background:var(--panel2);color:var(--txt);font-family:inherit;font-size:14.5px;
+    font-weight:600;outline:none;transition:.15s;
+  }
+  .field input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(77,226,192,.15)}
+  .err{color:var(--warn);font-size:12.5px;text-align:center;margin-top:8px;min-height:16px}
+
+  .tabs{display:flex;gap:6px;margin-bottom:16px;background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:4px}
+  .tabs button{
+    flex:1;padding:10px;border:none;background:transparent;color:var(--muted);
+    font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;
+    border-radius:9px;transition:.15s;
+  }
+  .tabs button.active{background:linear-gradient(135deg,var(--accent),#39b8ff);color:#04121a}
+
+  .hud{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:12px}
+  .chip{background:var(--panel2);border:1px solid var(--line);border-radius:11px;padding:7px 12px;font-size:12px;font-weight:600}
+  .chip b{color:var(--accent);font-weight:800}
+  .lives{display:flex;gap:5px;background:var(--panel2);border:1px solid var(--line);border-radius:11px;padding:8px 12px}
+  .heart{width:12px;height:12px;border-radius:50%;background:var(--warn);box-shadow:0 0 10px rgba(255,92,122,.6);transition:.3s}
+  .heart.dead{background:#2a3054;box-shadow:none}
+
+  .banner{
+    background:var(--panel2);border:1px solid var(--line);border-radius:14px;
+    padding:12px;text-align:center;margin-bottom:12px;min-height:62px;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+  }
+  .banner .k{font-size:10.5px;letter-spacing:1.4px;text-transform:uppercase;color:var(--muted)}
+  .banner .v{font-size:15px;font-weight:700}
+  .banner.hot{border-color:var(--accent2);box-shadow:0 0 22px rgba(123,108,255,.25)}
+  .banner.hot .v{color:#b3a6ff}
+  .banner.ok{border-color:var(--good);box-shadow:0 0 22px rgba(57,229,140,.25)}
+  .banner.ok .v{color:var(--good)}
+  .banner.bad{border-color:var(--warn);box-shadow:0 0 22px rgba(255,92,122,.25)}
+  .banner.bad .v{color:var(--warn)}
+
+  .timer{height:5px;background:#1b2140;border-radius:99px;overflow:hidden;margin-bottom:14px}
+  .timer i{display:block;height:100%;width:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:99px;transition:width .06s linear}
+  .timer.hide{visibility:hidden}
+
+  .grid-wrap{position:relative}
+  .grid{display:grid;gap:8px;margin:0 auto;touch-action:manipulation}
+  .cell{aspect-ratio:1/1;border-radius:12px;background:#151a31;border:1.5px solid #232a4d;cursor:pointer;transition:.12s}
+  .cell.on{background:linear-gradient(135deg,var(--accent),#3ec9ff);border-color:transparent;box-shadow:0 0 18px rgba(77,226,192,.55)}
+  .cell.sel{background:linear-gradient(135deg,var(--accent2),#b06cff);border-color:transparent;box-shadow:0 0 18px rgba(123,108,255,.55)}
+  .cell.ok{background:linear-gradient(135deg,var(--good),#25c97a)!important;border-color:transparent!important;box-shadow:0 0 22px rgba(57,229,140,.6)!important}
+  .cell.bad{background:linear-gradient(135deg,var(--warn),#ff2d55)!important;border-color:transparent!important;box-shadow:0 0 22px rgba(255,92,122,.6)!important}
+  .cell.miss{background:transparent!important;border:2px dashed var(--good)!important;box-shadow:none!important}
+  .grid.locked .cell{pointer-events:none}
+
+  .overlay{
+    position:absolute;inset:-14px;border-radius:20px;background:rgba(7,9,18,.94);
+    backdrop-filter:blur(6px);display:none;flex-direction:column;align-items:center;
+    justify-content:center;padding:18px;z-index:5;gap:14px;
+  }
+  .overlay.show{display:flex;animation:fade .2s ease}
+  .overlay .q{font-size:30px;font-weight:800;letter-spacing:1px;color:var(--accent)}
+  .overlay .hint{font-size:11.5px;color:var(--muted);text-transform:uppercase;letter-spacing:1.2px}
+  .answers{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;max-width:260px}
+  .answers button{padding:15px;border-radius:13px;border:1px solid var(--line);background:var(--panel2);
+    color:var(--txt);font-family:inherit;font-size:19px;font-weight:700;cursor:pointer;transition:.15s}
+  .answers button:hover{border-color:var(--accent);color:var(--accent)}
+  .answers button.wrong{border-color:var(--warn);color:var(--warn);opacity:.5;cursor:not-allowed}
+
+  .result{text-align:center;padding:6px 0}
+  .iq-ring{width:160px;height:160px;border-radius:50%;margin:10px auto 14px;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    background:conic-gradient(var(--accent) var(--p,0deg), #1c2240 0deg);position:relative}
+  .iq-ring::after{content:'';position:absolute;inset:11px;border-radius:50%;background:var(--panel)}
+  .iq-ring .num{position:relative;z-index:2;font-size:44px;font-weight:800;
+    background:linear-gradient(90deg,#fff,var(--accent));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .iq-ring .lbl{position:relative;z-index:2;font-size:10.5px;letter-spacing:2px;color:var(--muted);text-transform:uppercase}
+  .rank{font-size:15px;font-weight:700;margin-bottom:14px;color:var(--accent2)}
+  .rgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+  .rgrid div{background:var(--panel2);border:1px solid var(--line);border-radius:13px;padding:11px}
+  .rgrid b{display:block;font-size:18px;font-weight:800}
+  .rgrid span{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px}
+
+  .flash{position:absolute;inset:0;border-radius:24px;pointer-events:none;opacity:0;transition:opacity .25s;z-index:1}
+  .flash.g{background:radial-gradient(circle,rgba(57,229,140,.28),transparent 70%);opacity:1}
+  .flash.r{background:radial-gradient(circle,rgba(255,92,122,.28),transparent 70%);opacity:1}
+
+  .milestone-bg{position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(8px);
+    display:none;align-items:center;justify-content:center;z-index:200;padding:20px}
+  .milestone-bg.show{display:flex;animation:fade .3s ease}
+  .milestone{width:100%;max-width:400px;text-align:center;padding:30px 24px;
+    background:linear-gradient(180deg,#161b33,#0f1324);border:2px solid var(--gold);
+    border-radius:24px;box-shadow:0 0 60px rgba(255,209,102,.3);animation:pop .45s cubic-bezier(.34,1.56,.64,1)}
+  @keyframes pop{from{transform:scale(.7);opacity:0}to{transform:scale(1);opacity:1}}
+  .milestone .icon{font-size:72px;margin-bottom:12px;animation:float 2s ease-in-out infinite}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+  .milestone .h{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:8px}
+  .milestone .title{font-size:28px;font-weight:800;margin-bottom:6px;color:#fff}
+  .milestone .sub{font-size:13.5px;color:var(--muted);margin-bottom:22px;line-height:1.5}
+  .milestone .lvl-badge{display:inline-block;padding:6px 18px;border-radius:99px;background:rgba(255,209,102,.15);
+    border:1px solid var(--gold);color:var(--gold);font-weight:800;font-size:14px;margin-bottom:20px}
+
+  .name-input{width:100%;padding:13px 15px;border-radius:12px;border:1px solid var(--line);
+    background:var(--panel2);color:var(--txt);font-family:inherit;font-size:14.5px;
+    font-weight:600;margin-bottom:12px;outline:none}
+  .name-input:focus{border-color:var(--accent)}
+  .cert-preview{width:100%;border-radius:14px;border:1px solid var(--line);margin:8px 0 14px;
+    overflow:hidden;background:#0a0d1c}
+  .cert-preview canvas{display:block;width:100%;height:auto}
+
+  .cert-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:16px}
+  .cert-card{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:12px;text-align:center;position:relative;overflow:hidden}
+  .cert-card.locked{opacity:.4;filter:grayscale(1)}
+  .cert-card .ico{font-size:28px;margin-bottom:6px}
+  .cert-card .nm{font-size:12px;font-weight:800;letter-spacing:.3px}
+  .cert-card .lv{font-size:10.5px;color:var(--muted);margin-top:2px}
+  .cert-card.unlocked{border-color:var(--gold);box-shadow:0 0 18px rgba(255,209,102,.15)}
+
+  .user-badge{display:flex;align-items:center;justify-content:space-between;background:var(--panel2);
+    border:1px solid var(--line);border-radius:13px;padding:10px 14px;margin-bottom:14px}
+  .user-badge .who{font-size:13px;color:var(--muted)}
+  .user-badge .who b{color:var(--accent);font-weight:800}
+  .user-badge button{padding:6px 12px;border-radius:9px;border:1px solid var(--line);
+    background:transparent;color:var(--muted);font-family:inherit;font-size:11.5px;
+    font-weight:700;cursor:pointer;transition:.15s}
+  .user-badge button:hover{border-color:var(--warn);color:var(--warn)}
+
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);
+    background:linear-gradient(135deg,#39e58c,#4de2c0);color:#04121a;padding:13px 22px;
+    border-radius:14px;font-weight:700;font-size:13.5px;box-shadow:0 12px 40px rgba(57,229,140,.4);
+    opacity:0;transition:.35s;z-index:300;pointer-events:none;max-width:90vw}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  .toast.err{background:linear-gradient(135deg,#ff5c7a,#ff2d55);color:#fff;box-shadow:0 12px 40px rgba(255,92,122,.4)}
+
+  .loading{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.3);
+    border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;margin-right:8px;vertical-align:middle}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  .special-end{text-align:center;padding:20px}
+  .special-end .ico{font-size:80px;margin-bottom:16px;animation:float 2s ease-in-out infinite}
+  .special-end h2{font-size:24px;font-weight:800;margin-bottom:10px;
+    background:linear-gradient(90deg,#ffd166,#ff9f1c);-webkit-background-clip:text;
+    background-clip:text;color:transparent}
+  .special-end p{color:var(--muted);font-size:14px;line-height:1.6;margin-bottom:20px}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="flash" id="flash"></div>
+
+  <!-- AUTH -->
+  <section class="screen active" id="s-auth">
+    <div class="logo"><i></i><i></i><i></i></div>
+    <h1>NeuroGrid IQ</h1>
+    <p class="tag">Memory • Rotation • Logic<br>Ek game, poora brain workout.</p>
+
+    <div class="tabs">
+      <button class="active" id="tab-login">Login</button>
+      <button id="tab-register">Register</button>
+    </div>
+
+    <div class="field">
+      <label>Username</label>
+      <input type="text" id="au-user" placeholder="apna_username" maxlength="20" autocomplete="username" />
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input type="password" id="au-pass" placeholder="••••••••" autocomplete="current-password" />
+    </div>
+
+    <button class="btn" id="btn-auth">🔐 Login</button>
+    <div class="err" id="au-err"></div>
+    <p style="text-align:center;font-size:11.5px;color:var(--muted);margin-top:14px">
+      Data securely Firebase me save hota hai ☁️
+    </p>
+  </section>
+
+  <!-- HOME -->
+  <section class="screen" id="s-home">
+    <div class="user-badge">
+      <div class="who">👤 <b id="h-user">player</b></div>
+      <button id="btn-logout">Logout</button>
+    </div>
+
+    <h1>NeuroGrid IQ</h1>
+    <p class="tag">Ready for brain workout? 🧠</p>
+
+    <div class="stats">
+      <div class="stat"><b id="h-best">0</b><span>Best Score</span></div>
+      <div class="stat"><b id="h-lvl">1</b><span>Top Level</span></div>
+      <div class="stat"><b id="h-streak">0</b><span>Best Streak</span></div>
+    </div>
+
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <h3 style="font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--accent)">🏆 Certificates</h3>
+      <span style="font-size:11.5px;color:var(--muted)" id="cert-count">0 / 10</span>
+    </div>
+    <div class="cert-grid" id="cert-grid"></div>
+
+    <button class="btn" id="btn-play">▶ Start Brain Test</button>
+  </section>
+
+  <!-- GAME -->
+  <section class="screen" id="s-game">
+    <div class="hud">
+      <div class="chip">LVL <b id="g-lvl">1</b></div>
+      <div class="chip">SCORE <b id="g-score">0</b></div>
+      <div class="lives">
+        <i class="heart" data-h="0"></i><i class="heart" data-h="1"></i><i class="heart" data-h="2"></i>
+      </div>
+    </div>
+
+    <div class="banner" id="g-banner">
+      <span class="k" id="g-k">Get Ready</span>
+      <span class="v" id="g-v">Dekho aur yaad karo…</span>
+    </div>
+
+    <div class="timer" id="g-timerWrap"><i id="g-timer"></i></div>
+
+    <div class="grid-wrap">
+      <div class="grid locked" id="g-grid"></div>
+      <div class="overlay" id="g-math">
+        <span class="hint">Sawaal ka jawab do</span>
+        <div class="q" id="m-q">7 + 5</div>
+        <div class="answers" id="m-a"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RESULT -->
+  <section class="screen" id="s-over">
+    <div class="result">
+      <h1 style="font-size:22px" id="over-title">Game Over</h1>
+      <div class="iq-ring" id="r-ring">
+        <span class="num" id="r-iq">0</span>
+        <span class="lbl">IQ Score</span>
+      </div>
+      <div class="rank" id="r-rank">—</div>
+      <div class="rgrid">
+        <div><b id="r-score" style="color:var(--accent)">0</b><span>Final Score</span></div>
+        <div><b id="r-lvl" style="color:var(--accent2)">1</b><span>Level Reached</span></div>
+        <div><b id="r-acc" style="color:var(--good)">0%</b><span>Accuracy</span></div>
+        <div><b id="r-streak" style="color:var(--warn)">0</b><span>Best Streak</span></div>
+      </div>
+
+      <div id="r-cert-unlocked" style="display:none;background:linear-gradient(135deg,rgba(255,209,102,.15),rgba(255,159,28,.08));border:1px solid var(--gold);border-radius:14px;padding:14px;margin-bottom:14px">
+        <div style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);font-weight:700;margin-bottom:4px">🎉 Certificate Unlocked</div>
+        <div style="font-size:16px;font-weight:800" id="r-cert-name">—</div>
+      </div>
+
+      <button class="btn gold" id="btn-cert" style="display:none">🏆 View Certificate</button>
+      <button class="btn" id="btn-again">🔁 Try Again</button>
+      <button class="btn ghost" id="btn-home">Home</button>
+    </div>
+  </section>
+
+  <!-- CERTIFICATE -->
+  <section class="screen" id="s-cert">
+    <h1 style="font-size:22px;margin-bottom:6px">🏆 Certificate</h1>
+    <p class="tag" id="cert-subtitle">Milestone unlocked!</p>
+
+    <input class="name-input" id="cert-name" maxlength="24" placeholder="Apna naam likho..." />
+
+    <div class="cert-preview">
+      <canvas id="cert-canvas" width="1200" height="850"></canvas>
+    </div>
+
+    <button class="btn gold" id="btn-download">⬇ Download Certificate</button>
+    <button class="btn ghost" id="btn-cert-back">← Back</button>
+  </section>
+
+  <!-- FINAL -->
+  <section class="screen" id="s-final">
+    <div class="special-end">
+      <div class="ico">👑</div>
+      <h2>Grandmaster 3 Unlocked!</h2>
+      <p>Aapne sabhi 500 levels complete kar liye!<br>
+         Aap ek true <b style="color:var(--gold)">NeuroGrid Legend</b> ho.</p>
+      <div style="background:var(--panel2);border:1px solid var(--gold);border-radius:14px;padding:16px;margin-bottom:18px">
+        <div style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);font-weight:700;margin-bottom:6px">⏳ Next Session</div>
+        <div style="font-size:14px;font-weight:600;line-height:1.5">
+          Aage ke levels jald hi aayenge.<br>
+          <span style="color:var(--accent)">Next session ka wait karo!</span>
+        </div>
+      </div>
+      <button class="btn gold" id="btn-final-cert">🏆 View Final Certificate</button>
+      <button class="btn ghost" id="btn-final-home">Home</button>
+    </div>
+  </section>
+</div>
+
+<!-- MILESTONE MODAL -->
+<div class="milestone-bg" id="ms-bg">
+  <div class="milestone" id="ms-card">
+    <div class="icon" id="ms-icon">🏆</div>
+    <div class="h" id="ms-h">Certificate Unlocked</div>
+    <div class="title" id="ms-title">Platinum</div>
+    <div class="lvl-badge" id="ms-lvl">LEVEL 20</div>
+    <div class="sub" id="ms-sub">Shabaash! Milestone achieve kiya 🎉</div>
+    <button class="btn gold" id="ms-btn">View Certificate</button>
+    <button class="btn ghost" id="ms-close" style="margin-top:8px">Continue Game</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* =========================================================
+   CONFIG
+   ========================================================= */
+const FB_URL = 'https://mindmaster-31158-default-rtdb.firebaseio.com';
+
+const DEFAULT_CERTS = [
+  { lvl: 20,  name: 'Platinum',       color: '#e5e4e2', accent: '#9ca3af', icon: '🥈', bg1:'#1a1f3a', bg2:'#2d3254', desc: 'Pehla certificate unlock!' },
+  { lvl: 50,  name: 'Silver',         color: '#c0c0c0', accent: '#6b7280', icon: '🥈', bg1:'#1a1f3a', bg2:'#2d3254', desc: 'Solid progress!' },
+  { lvl: 100, name: 'Gold',           color: '#ffd700', accent: '#f59e0b', icon: '🥇', bg1:'#2a1f0a', bg2:'#3d2e10', desc: 'Triple digits!' },
+  { lvl: 200, name: 'Master',         color: '#a78bfa', accent: '#7c3aed', icon: '👑', bg1:'#1e1a3a', bg2:'#332a5c', desc: 'Master achieved!' },
+  { lvl: 250, name: 'Elite Master',   color: '#f472b6', accent: '#ec4899', icon: '💎', bg1:'#2a1a30', bg2:'#3d2644', desc: 'Elite tier!' },
+  { lvl: 300, name: 'Grandmaster',    color: '#fb923c', accent: '#ea580c', icon: '🔥', bg1:'#2a1a0a', bg2:'#3d2610', desc: 'Grandmaster!' },
+  { lvl: 350, name: 'Elite Master',   color: '#38bdf8', accent: '#0ea5e9', icon: '⚡', bg1:'#0a1e2a', bg2:'#102d3d', desc: 'Elite speed!' },
+  { lvl: 400, name: 'Grandmaster 1',  color: '#10b981', accent: '#059669', icon: '🌟', bg1:'#0a2a1e', bg2:'#0f3d2d', desc: 'GM Level 1!' },
+  { lvl: 450, name: 'Grandmaster 2',  color: '#8b5cf6', accent: '#7c3aed', icon: '💫', bg1:'#1e1a3a', bg2:'#2d2454', desc: 'GM Level 2!' },
+  { lvl: 500, name: 'Grandmaster 3',  color: '#ef4444', accent: '#dc2626', icon: '🏆', bg1:'#2a0a0a', bg2:'#3d1010', desc: 'TRUE LEGEND!' },
+];
+
+let CERT_CONFIG = [...DEFAULT_CERTS];
+
+/* =========================================================
+   HELPERS
+   ========================================================= */
+const $ = id => document.getElementById(id);
+
+async function fbGet(path){
+  const r = await fetch(`${FB_URL}${path}.json`);
+  return await r.json();
+}
+async function fbPut(path, data){
+  const r = await fetch(`${FB_URL}${path}.json`, {
+    method: 'PUT', headers: {'Content-Type':'application/json'},
+    body: JSON.stringify(data)
+  });
+  return await r.json();
+}
+async function fbPost(path, data){
+  const r = await fetch(`${FB_URL}${path}.json`, {
+    method: 'POST', headers: {'Content-Type':'application/json'},
+    body: JSON.stringify(data)
+  });
+  return await r.json();
+}
+async function fbPatch(path, data){
+  const r = await fetch(`${FB_URL}${path}.json`, {
+    method: 'PATCH', headers: {'Content-Type':'application/json'},
+    body: JSON.stringify(data)
+  });
+  return await r.json();
+}
+
+function hashPw(s){
+  let h = 5381;
+  for(let i=0;i<s.length;i++){ h = ((h<<5) + h) + s.charCodeAt(i); h |= 0; }
+  return 'h' + Math.abs(h).toString(36);
+}
+function userKey(name){ return name.toLowerCase().replace(/[.#$/\[\]]/g, '_'); }
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  $(id).classList.add('active');
+}
+function toast(msg, isErr=false){
+  const t = $('toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (isErr ? ' err' : '');
+  clearTimeout(t._t);
+  t._t = setTimeout(()=> t.className = 'toast' + (isErr ? ' err' : ''), 2600);
+}
+let AC=null;
+function beep(freq=440, dur=90, type='sine', vol=.06){
+  try{
+    AC = AC || new (window.AudioContext||window.webkitAudioContext)();
+    const o=AC.createOscillator(), g=AC.createGain();
+    o.type=type; o.frequency.value=freq;
+    g.gain.setValueAtTime(vol,AC.currentTime);
+    g.gain.exponentialRampToValueAtTime(.0001,AC.currentTime+dur/1000);
+    o.connect(g); g.connect(AC.destination);
+    o.start(); o.stop(AC.currentTime+dur/1000);
+  }catch(e){}
+}
+function flash(cls){
+  const f = $('flash');
+  f.className = 'flash ' + cls;
+  setTimeout(()=>f.className='flash',260);
+}
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  })[c]);
+}
+
+async function loadCertConfig(){
+  try{
+    const cfg = await fbGet('/config/certificates');
+    if(Array.isArray(cfg) && cfg.length) CERT_CONFIG = cfg;
+    else CERT_CONFIG = [...DEFAULT_CERTS];
+  }catch(e){
+    CERT_CONFIG = [...DEFAULT_CERTS];
+  }
+}
+
+/* =========================================================
+   STATE
+   ========================================================= */
+let CURRENT_USER = null;
+let USER_DATA = { profile:{}, scores:{} };
+
+function saveSession(u){ sessionStorage.setItem('ng_user', u); }
+function clearSession(){ sessionStorage.removeItem('ng_user'); }
+function getSession(){ return sessionStorage.getItem('ng_user'); }
+
+/* =========================================================
+   AUTH
+   ========================================================= */
+let authMode = 'login';
+$('tab-login').onclick = () => {
+  authMode = 'login';
+  $('tab-login').classList.add('active');
+  $('tab-register').classList.remove('active');
+  $('btn-auth').textContent = '🔐 Login';
+  $('au-err').textContent = '';
+};
+$('tab-register').onclick = () => {
+  authMode = 'register';
+  $('tab-register').classList.add('active');
+  $('tab-login').classList.remove('active');
+  $('btn-auth').textContent = '✨ Create Account';
+  $('au-err').textContent = '';
+};
+
+$('btn-auth').onclick = doAuth;
+$('au-pass').addEventListener('keypress', e=>{ if(e.key==='Enter') doAuth(); });
+
+async function doAuth(){
+  const username = $('au-user').value.trim();
+  const password = $('au-pass').value;
+  const err = $('au-err');
+  err.textContent = '';
+
+  if(username.toLowerCase() === 'admin'){
+    err.textContent = '❌ Ye username reserved hai';
+    return;
+  }
+  if(username.length < 3){ err.textContent = '❌ Username min 3 characters'; return; }
+  if(!/^[a-zA-Z0-9_]+$/.test(username)){ err.textContent = '❌ Sirf letters, numbers, _ allowed'; return; }
+  if(password.length < 4){ err.textContent = '❌ Password min 4 characters'; return; }
+
+  const btn = $('btn-auth');
+  const orig = btn.textContent;
+  btn.disabled = true;
+  btn.innerHTML = '<span class="loading"></span> Please wait...';
+
+  try{
+    const key = userKey(username);
+    const existing = await fbGet(`/users/${key}/profile`);
+
+    if(authMode === 'register'){
+      if(existing){ err.textContent = '❌ Ye username registered hai'; reset(); return; }
+      const profile = {
+        username,
+        password: hashPw(password),
+        createdAt: Date.now(),
+        bestScore: 0, bestLevel: 1, bestIQ: 0, bestStreak: 0
+      };
+      await fbPut(`/users/${key}/profile`, profile);
+      await fbPut(`/users/${key}/scores`, { _init: true });
+      toast('✅ Account ban gaya! Welcome ' + username);
+      beep(880, 140);
+      await loginPlayer(username, key, profile);
+    } else {
+      if(!existing){ err.textContent = '❌ Username nahi mila'; reset(); return; }
+      if(existing.password !== hashPw(password)){ err.textContent = '❌ Galat password'; reset(); return; }
+      toast('✅ Welcome back, ' + username);
+      beep(880, 140);
+      await loginPlayer(username, key, existing);
+    }
+  } catch(e){
+    console.error(e);
+    err.textContent = '❌ Connection failed. Internet check karo.';
+    reset();
+  }
+
+  function reset(){ btn.disabled = false; btn.textContent = orig; }
+}
+
+async function loginPlayer(username, key, profile){
+  CURRENT_USER = { username, key };
+  USER_DATA.profile = profile;
+  saveSession(username);
+
+  await loadCertConfig();
+  const scores = await fbGet(`/users/${key}/scores`);
+  USER_DATA.scores = scores || {};
+  delete USER_DATA.scores._init;
+
+  $('au-user').value = '';
+  $('au-pass').value = '';
+  $('btn-auth').disabled = false;
+  $('btn-auth').textContent = authMode === 'login' ? '🔐 Login' : '✨ Create Account';
+  enterHome();
+}
+
+/* =========================================================
+   HOME
+   ========================================================= */
+function enterHome(){
+  $('h-user').textContent = CURRENT_USER.username;
+  const p = USER_DATA.profile || {};
+  $('h-best').textContent = p.bestScore || 0;
+  $('h-lvl').textContent = p.bestLevel || 1;
+  $('h-streak').textContent = p.bestStreak || 0;
+  renderCertGrid();
+  show('s-home');
+}
+
+function getBestLevel(){
+  return (USER_DATA.profile && USER_DATA.profile.bestLevel) || 1;
+}
+
+function renderCertGrid(){
+  const best = getBestLevel();
+  let unlockedCount = 0;
+  const grid = $('cert-grid');
+  grid.innerHTML = '';
+  CERT_CONFIG.forEach(c => {
+    const unlocked = best >= c.lvl;
+    if(unlocked) unlockedCount++;
+    const div = document.createElement('div');
+    div.className = 'cert-card ' + (unlocked ? 'unlocked' : 'locked');
+    div.innerHTML = `
+      <div class="ico">${c.icon}</div>
+      <div class="nm" style="color:${unlocked ? c.color : 'var(--muted)'}">${escapeHtml(c.name)}</div>
+      <div class="lv">Level ${c.lvl}</div>
+    `;
+    if(unlocked){
+      div.style.cursor = 'pointer';
+      div.onclick = () => openCertificate(c);
+    }
+    grid.appendChild(div);
+  });
+  $('cert-count').textContent = `${unlockedCount} / ${CERT_CONFIG.length}`;
+}
+
+$('btn-logout').onclick = () => {
+  clearSession();
+  CURRENT_USER = null;
+  USER_DATA = { profile:{}, scores:{} };
+  show('s-auth');
+};
+
+$('btn-play').onclick = startGame;
+
+/* =========================================================
+   GAME ENGINE
+   ========================================================= */
+const G = {
+  level:1, score:0, lives:3, streak:0, bestStreak:0,
+  n:3, pattern:[], selected:new Set(), transform:'none',
+  rounds:0, correct:0, playing:false, acceptInput:false,
+  timerId:null, checking:false,
+  finalIQ:0, finalAcc:0,
+  newlyUnlockedCert:null
+};
+
+const shuffle = a => { for(let i=a.length-1;i>0;i--){const j=(Math.random()*(i+1))|0;[a[i],a[j]]=[a[j],a[i]];} return a; };
+const rnd = (a,b) => a + Math.floor(Math.random()*(b-a+1));
+
+function levelConfig(level){
+  const n        = level <= 3 ? 3 : level <= 6 ? 4 : level <= 10 ? 5 : 6;
+  const maxTiles = n*n - 2;
+  const tiles    = Math.min(maxTiles, 3 + Math.floor(level * 0.9));
+  const showMs   = Math.max(1100, 3400 - level * 170);
+  const mathOn   = level >= 3;
+  let transform  = 'none';
+  if (level >= 4) transform = 'rot90';
+  if (level >= 7) transform = Math.random() < .45 ? 'mirrorH' : 'rot90';
+  if (level >= 11) transform = ['rot90','mirrorH','mirrorV','rot180'][rnd(0,3)];
+  return { n, tiles, showMs, mathOn, transform };
+}
+
+const TRANSFORM_LABEL = {
+  none:    'Waisa hi banao jaisa dikha tha',
+  rot90:   '🌀 Pattern ko 90° CLOCKWISE ghuma ke banao',
+  rot180:  '🌀 Pattern ko 180° ghuma ke banao',
+  mirrorH: '🪞 Left–Right mirror karke banao',
+  mirrorV: '🪞 Up–Down mirror karke banao'
+};
+
+function applyTransform(idx, n, type){
+  if (type === 'none') return [...idx];
+  return idx.map(i=>{
+    const r = Math.floor(i/n), c = i % n;
+    switch(type){
+      case 'rot90':   return (n-1-r)*n + c;
+      case 'rot180':  return (n-1-r)*n + (n-1-c);
+      case 'mirrorH': return r*n + (n-1-c);
+      case 'mirrorV': return (n-1-r)*n + c;
+      default:        return i;
+    }
+  });
+}
+
+function updateHUD(){
+  $('g-lvl').textContent   = G.level;
+  $('g-score').textContent = G.score;
+  document.querySelectorAll('.heart').forEach((h,i)=>{
+    h.classList.toggle('dead', i >= G.lives);
+  });
+}
+function setBanner(k, v, cls=''){
+  $('g-k').textContent = k;
+  $('g-v').textContent = v;
+  $('g-banner').className = 'banner ' + cls;
+}
+function buildGrid(n){
+  const grid = $('g-grid');
+  grid.style.gridTemplateColumns = `repeat(${n},1fr)`;
+  grid.innerHTML = '';
+  for(let i=0;i<n*n;i++){
+    const d = document.createElement('div');
+    d.className = 'cell';
+    d.dataset.i = i;
+    d.addEventListener('click', ()=>onCellClick(i));
+    grid.appendChild(d);
+  }
+  G.n = n;
+}
+const cells = () => [...$('g-grid').children];
+function clearCells(){ cells().forEach(c=>c.className='cell'); }
+function lockGrid(v){ $('g-grid').classList.toggle('locked', v); }
+
+function runTimer(ms, onDone){
+  clearInterval(G.timerId);
+  const bar = $('g-timer');
+  const wrap = $('g-timerWrap');
+  wrap.classList.remove('hide');
+  const t0 = performance.now();
+  bar.style.width = '100%';
+  G.timerId = setInterval(()=>{
+    const p = Math.max(0, 1 - (performance.now()-t0)/ms);
+    bar.style.width = (p*100) + '%';
+    if(p <= 0){ clearInterval(G.timerId); onDone && onDone(); }
+  }, 50);
+}
+function stopTimer(){ clearInterval(G.timerId); $('g-timer').style.width='100%'; }
+function hideTimer(){ $('g-timerWrap').classList.add('hide'); }
+
+function startGame(){
+  G.level=1; G.score=0; G.lives=3; G.streak=0; G.bestStreak=0;
+  G.rounds=0; G.correct=0; G.playing=true; G.checking=false;
+  G.newlyUnlockedCert = null;
+  updateHUD();
+  show('s-game');
+  startRound();
+}
+
+function startRound(){
+  if(!G.playing) return;
+  G.checking = false;
+  const cfg = levelConfig(G.level);
+  G.transform = cfg.transform;
+  G.selected.clear();
+
+  buildGrid(cfg.n);
+  clearCells();
+  lockGrid(true);
+  hideTimer();
+
+  const all = shuffle([...Array(cfg.n*cfg.n).keys()]);
+  G.pattern = all.slice(0, cfg.tiles);
+
+  if(cfg.transform !== 'none'){
+    setBanner('RULE PEHLE PADHO', TRANSFORM_LABEL[cfg.transform], 'hot');
+    beep(660,110,'triangle');
+    runTimer(2200, ()=> showPattern(cfg));
+  } else {
+    showPattern(cfg);
+  }
+}
+
+function showPattern(cfg){
+  setBanner('YAAD KARO', `${cfg.tiles} tiles • ${(cfg.showMs/1000).toFixed(1)}s`);
+  const cs = cells();
+  cs.forEach(c=>c.classList.remove('on','sel','ok','bad','miss'));
+
+  G.pattern.forEach((idx,k)=>{
+    setTimeout(()=>{
+      if(cs[idx]) cs[idx].classList.add('on');
+      beep(500 + k*40, 60, 'sine', .035);
+    }, k*55);
+  });
+
+  runTimer(cfg.showMs, ()=>{
+    cs.forEach(c=>c.classList.remove('on'));
+    beep(300,90,'sine',.04);
+    if(cfg.mathOn) setTimeout(()=>askMath(cfg), 320);
+    else setTimeout(()=>beginInput(cfg), 320);
+  });
+}
+
+function askMath(cfg){
+  let a,b,q,ans;
+  const hard = G.level >= 6;
+  const mode = rnd(0, hard ? 3 : 1);
+  if(mode===0){ a=rnd(6,9+G.level); b=rnd(4,9+G.level); q=`${a} + ${b}`; ans=a+b; }
+  else if(mode===1){ a=rnd(12,20+G.level); b=rnd(3,11); q=`${a} − ${b}`; ans=a-b; }
+  else if(mode===2){ a=rnd(3,9); b=rnd(3,9); q=`${a} × ${b}`; ans=a*b; }
+  else { a=rnd(4,9); b=rnd(3,9); const c=rnd(2,9); q=`${a} × ${b} − ${c}`; ans=a*b-c; }
+
+  $('m-q').textContent = q;
+
+  const opts = new Set([ans]);
+  while(opts.size < 4){
+    const d = ans + rnd(-9,9);
+    if(d !== ans && d > 0) opts.add(d);
+  }
+  const list = shuffle([...opts]);
+
+  const box = $('m-a');
+  box.innerHTML = '';
+  list.forEach(v=>{
+    const b = document.createElement('button');
+    b.textContent = v;
+    b.onclick = ()=>{
+      if(v === ans){
+        beep(880,90,'sine',.06);
+        $('g-math').classList.remove('show');
+        beginInput(cfg);
+      } else {
+        b.classList.add('wrong');
+        b.disabled = true;
+        beep(180,140,'sawtooth',.05);
+      }
+    };
+    box.appendChild(b);
+  });
+
+  $('g-math').classList.add('show');
+}
+
+function beginInput(cfg){
+  setBanner('AB BANAO', TRANSFORM_LABEL[G.transform], G.transform!=='none' ? 'hot' : '');
+  lockGrid(false);
+  hideTimer();
+  G.acceptInput = true;
+  G.selected.clear();
+}
+
+function onCellClick(i){
+  if(!G.acceptInput || G.checking) return;
+  const c = cells()[i];
+  if(G.selected.has(i)){
+    G.selected.delete(i);
+    c.classList.remove('sel');
+  } else {
+    if(G.selected.size >= G.pattern.length) return;
+    G.selected.add(i);
+    c.classList.add('sel');
+    beep(700,45,'sine',.03);
+  }
+  if(G.selected.size === G.pattern.length){
+    G.acceptInput = false;
+    G.checking = true;
+    lockGrid(true);
+    setTimeout(()=>checkAnswer(), 280);
+  }
+}
+
+function checkAnswer(){
+  const expected = new Set(applyTransform(G.pattern, G.n, G.transform));
+  const chosen   = G.selected;
+  const cs = cells();
+
+  let hit = 0;
+  cs.forEach((c,idx)=>{
+    c.classList.remove('sel');
+    const want = expected.has(idx);
+    const got  = chosen.has(idx);
+    if(want && got){ c.classList.add('ok'); hit++; }
+    else if(got && !want){ c.classList.add('bad'); }
+    else if(want && !got){ c.classList.add('miss'); }
+  });
+
+  const total = expected.size;
+  const perfect = hit === total && chosen.size === total;
+  G.rounds++;
+
+  if(perfect){
+    G.correct++;
+    G.streak++;
+    G.bestStreak = Math.max(G.bestStreak, G.streak);
+    const gained = Math.round((60 + G.level*22) * (1 + G.streak*0.08));
+    G.score += gained;
+    flash('g'); beep(920,120,'sine',.07);
+    setBanner('✅ SAHI!', `+${gained} points • Streak ${G.streak}`, 'ok');
+    updateHUD();
+
+    const milestone = CERT_CONFIG.find(c => c.lvl === G.level);
+    setTimeout(()=>{
+      if(milestone){
+        showMilestone(milestone, ()=>{
+          if(G.level >= 500) endGame(true);
+          else { G.level++; updateHUD(); startRound(); }
+        });
+      } else {
+        if(G.level >= 500) endGame(true);
+        else { G.level++; updateHUD(); startRound(); }
+      }
+    }, 950);
+  } else {
+    G.streak = 0;
+    G.lives--;
+    flash('r'); beep(160,220,'sawtooth',.06);
+    setBanner('❌ GALAT', `Sahi: ${total} tiles • Tumne: ${hit}`, 'bad');
+    updateHUD();
+    setTimeout(()=>{
+      if(G.lives <= 0) endGame(false);
+      else startRound();
+    }, 1500);
+  }
+}
+
+/* =========================================================
+   MILESTONE
+   ========================================================= */
+let milestoneCb = null;
+function showMilestone(cert, cb){
+  milestoneCb = cb;
+  $('ms-icon').textContent = cert.icon;
+  $('ms-title').textContent = cert.name;
+  $('ms-title').style.color = cert.color;
+  $('ms-lvl').textContent = 'LEVEL ' + cert.lvl;
+  $('ms-card').style.borderColor = cert.color;
+  $('ms-card').style.boxShadow = `0 0 60px ${cert.color}55`;
+  $('ms-h').style.color = cert.color;
+  $('ms-lvl').style.borderColor = cert.color;
+  $('ms-lvl').style.color = cert.color;
+  $('ms-sub').textContent = cert.desc || `Shabaash! ${cert.name} unlock kiya! 🎉`;
+  $('ms-bg').classList.add('show');
+  beep(660,140,'sine',.08);
+  setTimeout(()=>beep(880,140,'sine',.08),150);
+  setTimeout(()=>beep(1100,220,'sine',.08),300);
+  G.newlyUnlockedCert = cert;
+}
+$('ms-btn').onclick = () => {
+  $('ms-bg').classList.remove('show');
+  openCertificate(G.newlyUnlockedCert);
+  if(milestoneCb){ const cb = milestoneCb; milestoneCb = null; setTimeout(cb, 400); }
+};
+$('ms-close').onclick = () => {
+  $('ms-bg').classList.remove('show');
+  if(milestoneCb){ const cb = milestoneCb; milestoneCb = null; cb(); }
+};
+
+/* =========================================================
+   END GAME
+   ========================================================= */
+async function endGame(isFinal){
+  G.playing = false;
+  G.checking = false;
+  stopTimer();
+  hideTimer();
+  $('g-math').classList.remove('show');
+
+  const acc = G.rounds ? Math.round((G.correct / G.rounds) * 100) : 0;
+  const reached = Math.max(1, G.level);
+  let iq = Math.round(88 + reached * 4.2 + acc * 0.42 + G.bestStreak * 0.9);
+  iq = Math.max(70, Math.min(200, iq));
+
+  let rank = 'Beginner Brain 🧩';
+  if(iq >= 100) rank = 'Sharp Mind ⚡';
+  if(iq >= 120) rank = 'Advanced Thinker 🧠';
+  if(iq >= 140) rank = 'Genius Zone 🔥';
+  if(iq >= 165) rank = 'IQ9000 Legend 👑';
+
+  G.finalIQ = iq;
+  G.finalAcc = acc;
+
+  $('over-title').textContent = isFinal ? '🏆 Game Complete!' : 'Game Over';
+  $('r-iq').textContent   = iq;
+  $('r-score').textContent= G.score;
+  $('r-lvl').textContent  = reached;
+  $('r-acc').textContent  = acc + '%';
+  $('r-streak').textContent = G.bestStreak;
+  $('r-rank').textContent = rank;
+
+  const deg = Math.round(((iq - 70) / 130) * 360);
+  const ring = $('r-ring');
+  ring.style.setProperty('--p','0deg');
+  let cur = 0;
+  const anim = setInterval(()=>{
+    cur += 8;
+    if(cur >= deg){ cur = deg; clearInterval(anim); }
+    ring.style.setProperty('--p', cur + 'deg');
+  }, 12);
+
+  const unlockedCert = CERT_CONFIG.filter(c => reached >= c.lvl).pop();
+  if(unlockedCert){
+    $('r-cert-unlocked').style.display = 'block';
+    $('r-cert-name').textContent = unlockedCert.icon + ' ' + unlockedCert.name;
+    $('btn-cert').style.display = 'block';
+    $('btn-cert').onclick = () => openCertificate(unlockedCert);
+  } else {
+    $('r-cert-unlocked').style.display = 'none';
+    $('btn-cert').style.display = 'none';
+  }
+
+  try{
+    const scoreRec = {
+      score: G.score, level: reached, iq, accuracy: acc,
+      bestStreak: G.bestStreak, date: Date.now()
+    };
+    await fbPost(`/users/${CURRENT_USER.key}/scores`, scoreRec);
+
+    const p = USER_DATA.profile || {};
+    const updates = {};
+    if(G.score > (p.bestScore || 0)) updates.bestScore = G.score;
+    if(reached > (p.bestLevel || 0)) updates.bestLevel = reached;
+    if(iq > (p.bestIQ || 0)) updates.bestIQ = iq;
+    if(G.bestStreak > (p.bestStreak || 0)) updates.bestStreak = G.bestStreak;
+    if(Object.keys(updates).length){
+      await fbPatch(`/users/${CURRENT_USER.key}/profile`, updates);
+      Object.assign(USER_DATA.profile, updates);
+    }
+  } catch(e){ console.error('Save failed', e); }
+
+  beep(520,150,'sine',.06);
+  setTimeout(()=>beep(780,180,'sine',.06),140);
+  setTimeout(()=>beep(1040,260,'sine',.06),300);
+
+  if(isFinal){ setTimeout(()=> show('s-final'), 500); }
+  else { show('s-over'); }
+}
+
+/* =========================================================
+   CERTIFICATE
+   ========================================================= */
+let certData = null;
+function openCertificate(cert){
+  certData = cert;
+  $('cert-subtitle').textContent = `${cert.icon} ${cert.name} — Level ${cert.lvl} Milestone`;
+  const savedName = USER_DATA.profile?.username || 'Brain Master';
+  $('cert-name').value = savedName;
+  drawCertificate(savedName, cert);
+  show('s-cert');
+}
+$('cert-name').addEventListener('input', e=>{
+  drawCertificate(e.target.value.trim() || 'Brain Master', certData);
+});
+
+function drawCertificate(name, cert){
+  const cvs = $('cert-canvas');
+  const ctx = cvs.getContext('2d');
+  const W = cvs.width, H = cvs.height;
+  const c1 = cert?.bg1 || '#0a0e22';
+  const c2 = cert?.bg2 || '#101538';
+  const accent = cert?.color || '#4de2c0';
+  const accentDark = cert?.accent || '#39b8ff';
+
+  const bg = ctx.createLinearGradient(0,0,W,H);
+  bg.addColorStop(0, c1); bg.addColorStop(.5, c2); bg.addColorStop(1, c1);
+  ctx.fillStyle = bg; ctx.fillRect(0,0,W,H);
+
+  const rg = ctx.createRadialGradient(W/2, H/2, 50, W/2, H/2, W/1.2);
+  rg.addColorStop(0, accent + '22');
+  rg.addColorStop(.6, accentDark + '11');
+  rg.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = rg; ctx.fillRect(0,0,W,H);
+
+  ctx.strokeStyle = accent;
+  ctx.lineWidth = 6;
+  ctx.strokeRect(30, 30, W-60, H-60);
+  ctx.strokeStyle = accentDark + '99';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(52, 52, W-104, H-104);
+
+  const corner = 70;
+  ctx.strokeStyle = accent;
+  ctx.lineWidth = 5; ctx.lineCap = 'round';
+  ctx.beginPath(); ctx.moveTo(52,52+corner); ctx.lineTo(52,52); ctx.lineTo(52+corner,52); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(W-52-corner,52); ctx.lineTo(W-52,52); ctx.lineTo(W-52,52+corner); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(52,H-52-corner); ctx.lineTo(52,H-52); ctx.lineTo(52+corner,H-52); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(W-52-corner,H-52); ctx.lineTo(W-52,H-52); ctx.lineTo(W-52,H-52-corner); ctx.stroke();
+
+  ctx.textAlign = 'center';
+  ctx.font = 'bold 60px Outfit, sans-serif';
+  ctx.fillText(cert?.icon || '🏆', W/2, 155);
+
+  ctx.fillStyle = accent;
+  ctx.font = 'bold 26px Outfit, sans-serif';
+  ctx.fillText('N E U R O G R I D   I Q', W/2, 210);
+
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 68px Outfit, sans-serif';
+  ctx.fillText((cert?.name || 'CERTIFICATE').toUpperCase(), W/2, 305);
+
+  ctx.fillStyle = accent;
+  ctx.font = '600 22px Outfit, sans-serif';
+  ctx.fillText('— CERTIFICATE OF ACHIEVEMENT —', W/2, 345);
+
+  ctx.fillStyle = '#c5ccef';
+  ctx.font = '500 22px Outfit, sans-serif';
+  ctx.fillText('This certificate is proudly awarded to', W/2, 420);
+
+  ctx.fillStyle = accent;
+  ctx.font = 'bold 70px Outfit, sans-serif';
+  ctx.fillText(name, W/2, 510);
+
+  ctx.strokeStyle = accent + '77';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(W/2 - 320, 535);
+  ctx.lineTo(W/2 + 320, 535);
+  ctx.stroke();
+
+  ctx.fillStyle = '#b9c1e6';
+  ctx.font = '500 22px Outfit, sans-serif';
+  ctx.fillText(`for reaching Level ${cert?.lvl || '—'} in the NeuroGrid IQ Brain Challenge`, W/2, 585);
+
+  const stats = [
+    { label: 'IQ SCORE', value: G.finalIQ, color: accent },
+    { label: 'LEVEL', value: G.level, color: accentDark },
+    { label: 'SCORE', value: G.score, color: '#39e58c' },
+    { label: 'ACCURACY', value: G.finalAcc + '%', color: '#ff5c7a' }
+  ];
+  const boxW = 210, boxH = 100, gap = 24;
+  const totalW = stats.length * boxW + (stats.length - 1) * gap;
+  const startX = (W - totalW) / 2;
+  const boxY = 630;
+
+  stats.forEach((s, i) => {
+    const x = startX + i * (boxW + gap);
+    ctx.fillStyle = 'rgba(0,0,0,.35)';
+    roundRect(ctx, x, boxY, boxW, boxH, 14); ctx.fill();
+    ctx.strokeStyle = s.color;
+    ctx.lineWidth = 2;
+    roundRect(ctx, x, boxY, boxW, boxH, 14); ctx.stroke();
+
+    ctx.fillStyle = s.color;
+    ctx.font = 'bold 34px Outfit, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(s.value, x + boxW/2, boxY + 50);
+
+    ctx.fillStyle = '#7c86b8';
+    ctx.font = '600 13px Outfit, sans-serif';
+    ctx.fillText(s.label, x + boxW/2, boxY + 78);
+  });
+
+  const dateStr = new Date().toLocaleDateString('en-GB', {
+    day: '2-digit', month: 'short', year: 'numeric'
+  });
+  ctx.textAlign = 'left';
+  ctx.fillStyle = '#7c86b8';
+  ctx.font = '500 16px Outfit, sans-serif';
+  ctx.fillText('DATE', 120, H - 110);
+  ctx.fillStyle = '#e8ecff';
+  ctx.font = 'bold 22px Outfit, sans-serif';
+  ctx.fillText(dateStr, 120, H - 80);
+
+  ctx.textAlign = 'right';
+  ctx.fillStyle = '#7c86b8';
+  ctx.font = '500 16px Outfit, sans-serif';
+  ctx.fillText('NEUROGRID IQ TEAM', W - 120, H - 110);
+  ctx.strokeStyle = 'rgba(232,236,255,.4)';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(W - 320, H - 72);
+  ctx.lineTo(W - 120, H - 72);
+  ctx.stroke();
+  ctx.fillStyle = '#e8ecff';
+  ctx.font = 'italic 20px Outfit, sans-serif';
+  ctx.fillText('Brain Training Lab', W - 120, H - 85);
+
+  const cx = W/2, cy = H - 85;
+  ctx.beginPath(); ctx.arc(cx, cy, 42, 0, Math.PI*2);
+  ctx.fillStyle = accent + '22'; ctx.fill();
+  ctx.strokeStyle = accent; ctx.lineWidth = 2.5; ctx.stroke();
+  ctx.fillStyle = accent; ctx.font = 'bold 22px Outfit, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText(cert?.icon || '🏆', cx, cy + 8);
+}
+
+function roundRect(ctx, x, y, w, h, r){
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  ctx.lineTo(x + r, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
+}
+
+$('btn-download').onclick = ()=>{
+  const name = (($('cert-name').value.trim() || 'Brain_Master')).replace(/\s+/g,'_');
+  const cvs = $('cert-canvas');
+  const link = document.createElement('a');
+  link.download = `NeuroGrid_${certData?.name || 'Certificate'}_${name}.png`;
+  link.href = cvs.toDataURL('image/png');
+  link.click();
+  beep(880,140,'sine',.07);
+  setTimeout(()=>beep(1160,200,'sine',.07), 130);
+};
+
+$('btn-cert-back').onclick = ()=>{
+  if(G.playing) show('s-game');
+  else show('s-over');
+};
+
+$('btn-again').onclick = startGame;
+$('btn-home').onclick  = ()=>{ enterHome(); };
+$('btn-final-cert').onclick = ()=>{
+  const c = CERT_CONFIG.find(x => x.lvl === 500);
+  openCertificate(c);
+};
+$('btn-final-home').onclick = ()=>{ enterHome(); };
+
+/* =========================================================
+   INIT
+   ========================================================= */
+(async function init(){
+  const u = getSession();
+  if(u){
+    try{
+      const key = userKey(u);
+      const profile = await fbGet(`/users/${key}/profile`);
+      if(profile){
+        await loadCertConfig();
+        CURRENT_USER = { username: u, key };
+        USER_DATA.profile = profile;
+        const scores = await fbGet(`/users/${key}/scores`) || {};
+        USER_DATA.scores = scores;
+        delete USER_DATA.scores._init;
+        enterHome();
+        return;
+      }
+    }catch(e){ console.warn(e); }
+  }
+  await loadCertConfig();
+  show('s-auth');
+})();
+</script>
+</body>
+</html>
