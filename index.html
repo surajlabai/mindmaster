@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-<title>NeuroGrid IQ</title>
+<title>MindMaster IQ</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
 <style>
@@ -34,11 +34,6 @@
   .screen.active{display:block}
   @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 
-  .logo{display:flex;align-items:center;gap:10px;justify-content:center;margin-bottom:6px}
-  .logo i{width:12px;height:12px;border-radius:4px;display:block}
-  .logo i:nth-child(1){background:var(--accent);box-shadow:0 0 24px rgba(77,226,192,.35)}
-  .logo i:nth-child(2){background:var(--accent2)}
-  .logo i:nth-child(3){background:var(--warn)}
   h1{font-size:30px;font-weight:800;text-align:center;letter-spacing:-.5px;
      background:linear-gradient(90deg,#fff,#8ea0ff 60%,#4de2c0);
      -webkit-background-clip:text;background-clip:text;color:transparent}
@@ -63,24 +58,6 @@
   .btn.ghost:hover{border-color:var(--accent);color:var(--accent)}
   .btn.gold{background:linear-gradient(135deg,#ffd166,#ff9f1c);color:#3a2000;box-shadow:0 10px 30px rgba(255,159,28,.35)}
   .btn+.btn{margin-top:10px}
-
-  .field{margin-bottom:12px}
-  .field label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted);margin-bottom:6px;font-weight:600}
-  .field input{
-    width:100%;padding:13px 15px;border-radius:12px;border:1px solid var(--line);
-    background:var(--panel2);color:var(--txt);font-family:inherit;font-size:14.5px;
-    font-weight:600;outline:none;transition:.15s;
-  }
-  .field input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(77,226,192,.15)}
-  .err{color:var(--warn);font-size:12.5px;text-align:center;margin-top:8px;min-height:16px}
-
-  .tabs{display:flex;gap:6px;margin-bottom:16px;background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:4px}
-  .tabs button{
-    flex:1;padding:10px;border:none;background:transparent;color:var(--muted);
-    font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;
-    border-radius:9px;transition:.15s;
-  }
-  .tabs button.active{background:linear-gradient(135deg,var(--accent),#39b8ff);color:#04121a}
 
   .hud{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:12px}
   .chip{background:var(--panel2);border:1px solid var(--line);border-radius:11px;padding:7px 12px;font-size:12px;font-weight:600}
@@ -180,15 +157,6 @@
   .cert-card .lv{font-size:10.5px;color:var(--muted);margin-top:2px}
   .cert-card.unlocked{border-color:var(--gold);box-shadow:0 0 18px rgba(255,209,102,.15)}
 
-  .user-badge{display:flex;align-items:center;justify-content:space-between;background:var(--panel2);
-    border:1px solid var(--line);border-radius:13px;padding:10px 14px;margin-bottom:14px}
-  .user-badge .who{font-size:13px;color:var(--muted)}
-  .user-badge .who b{color:var(--accent);font-weight:800}
-  .user-badge button{padding:6px 12px;border-radius:9px;border:1px solid var(--line);
-    background:transparent;color:var(--muted);font-family:inherit;font-size:11.5px;
-    font-weight:700;cursor:pointer;transition:.15s}
-  .user-badge button:hover{border-color:var(--warn);color:var(--warn)}
-
   .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);
     background:linear-gradient(135deg,#39e58c,#4de2c0);color:#04121a;padding:13px 22px;
     border-radius:14px;font-weight:700;font-size:13.5px;box-shadow:0 12px 40px rgba(57,229,140,.4);
@@ -214,8 +182,8 @@
 
   <!-- HOME -->
   <section class="screen active" id="s-home">
-    <h1>NeuroGrid IQ</h1>
-    <p class="tag">Ready for brain workout? 🧠</p>
+    <h1>MindMaster IQ</h1>
+    <p class="tag">Memory • Rotation • Logic<br>Ek game, poora brain workout.</p>
 
     <div class="stats">
       <div class="stat"><b id="h-best">0</b><span>Best Score</span></div>
@@ -294,7 +262,7 @@
     <input class="name-input" id="cert-name" maxlength="24" placeholder="Apna naam likho..." />
 
     <div class="cert-preview">
-      <canvas id="cert-canvas" width="1200" height="850"></canvas>
+      <canvas id="cert-canvas" width="1400" height="1000"></canvas>
     </div>
 
     <button class="btn gold" id="btn-download">⬇ Download Certificate</button>
@@ -307,7 +275,7 @@
       <div class="ico">👑</div>
       <h2>Grandmaster 3 Unlocked!</h2>
       <p>Aapne sabhi 500 levels complete kar liye!<br>
-         Aap ek true <b style="color:var(--gold)">NeuroGrid Legend</b> ho.</p>
+         Aap ek true <b style="color:var(--gold)">MindMaster Legend</b> ho.</p>
       <div style="background:var(--panel2);border:1px solid var(--gold);border-radius:14px;padding:16px;margin-bottom:18px">
         <div style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);font-weight:700;margin-bottom:6px">⏳ Next Session</div>
         <div style="font-size:14px;font-weight:600;line-height:1.5">
@@ -341,6 +309,8 @@
    CONFIG
    ========================================================= */
 const FB_URL = 'https://mindmaster-31158-default-rtdb.firebaseio.com';
+const ADMIN_NAME = '@surajprocreater';
+const GAME_NAME = 'MINDMASTER';
 
 const DEFAULT_CERTS = [
   { lvl: 20,  name: 'Platinum',       color: '#e5e4e2', accent: '#9ca3af', icon: '🥈', bg1:'#1a1f3a', bg2:'#2d3254', desc: 'Pehla certificate unlock!' },
@@ -433,7 +403,7 @@ async function loadCertConfig(){
 }
 
 /* =========================================================
-   STATE - Default guest user
+   STATE - Guest
    ========================================================= */
 let CURRENT_USER = { username: 'guest', key: 'guest' };
 let USER_DATA = { profile:{}, scores:{} };
@@ -446,6 +416,18 @@ function enterHome(){
   $('h-best').textContent = p.bestScore || 0;
   $('h-lvl').textContent = p.bestLevel || 1;
   $('h-streak').textContent = p.bestStreak || 0;
+  
+  // ⭐ Smart button — agar best level > 1 to "Continue" dikhao
+  const bestLvl = p.bestLevel || 1;
+  const btn = $('btn-play');
+  if(bestLvl > 1){
+    btn.innerHTML = `⏩ Continue from Level ${bestLvl}`;
+    btn.classList.add('gold');
+  } else {
+    btn.innerHTML = `▶ Start Brain Test`;
+    btn.classList.remove('gold');
+  }
+  
   renderCertGrid();
   show('s-home');
 }
@@ -477,8 +459,6 @@ function renderCertGrid(){
   });
   $('cert-count').textContent = `${unlockedCount} / ${CERT_CONFIG.length}`;
 }
-
-$('btn-play').onclick = startGame;
 
 /* =========================================================
    GAME ENGINE
@@ -575,9 +555,18 @@ function runTimer(ms, onDone){
 function stopTimer(){ clearInterval(G.timerId); $('g-timer').style.width='100%'; }
 function hideTimer(){ $('g-timerWrap').classList.add('hide'); }
 
+/* ⭐ START GAME — Always from best level */
 function startGame(){
-  G.level=1; G.score=0; G.lives=3; G.streak=0; G.bestStreak=0;
-  G.rounds=0; G.correct=0; G.playing=true; G.checking=false;
+  const bestLvl = USER_DATA.profile?.bestLevel || 1;
+  G.level = bestLvl;
+  G.score = 0;
+  G.lives = 3;
+  G.streak = 0;
+  G.bestStreak = 0;
+  G.rounds = 0;
+  G.correct = 0;
+  G.playing = true;
+  G.checking = false;
   G.newlyUnlockedCert = null;
   updateHUD();
   show('s-game');
@@ -835,7 +824,6 @@ async function endGame(isFinal){
     $('btn-cert').style.display = 'none';
   }
 
-  // Save to Firebase for guest user
   try{
     const scoreRec = {
       score: G.score, level: reached, iq, accuracy: acc,
@@ -871,146 +859,449 @@ function openCertificate(cert){
   certData = cert;
   $('cert-subtitle').textContent = `${cert.icon} ${cert.name} — Level ${cert.lvl} Milestone`;
   const savedName = USER_DATA.profile?.username || 'Brain Master';
-  $('cert-name').value = savedName;
-  drawCertificate(savedName, cert);
+  $('cert-name').value = savedName === 'guest' ? '' : savedName;
+  drawCertificate(savedName === 'guest' ? 'Brain Master' : savedName, cert);
   show('s-cert');
 }
 $('cert-name').addEventListener('input', e=>{
   drawCertificate(e.target.value.trim() || 'Brain Master', certData);
 });
 
+/* =========================================================
+   PREMIUM CERTIFICATE DRAWING
+   ========================================================= */
 function drawCertificate(name, cert){
   const cvs = $('cert-canvas');
   const ctx = cvs.getContext('2d');
   const W = cvs.width, H = cvs.height;
-  const c1 = cert?.bg1 || '#0a0e22';
-  const c2 = cert?.bg2 || '#101538';
-  const accent = cert?.color || '#4de2c0';
-  const accentDark = cert?.accent || '#39b8ff';
-
-  const bg = ctx.createLinearGradient(0,0,W,H);
-  bg.addColorStop(0, c1); bg.addColorStop(.5, c2); bg.addColorStop(1, c1);
-  ctx.fillStyle = bg; ctx.fillRect(0,0,W,H);
-
-  const rg = ctx.createRadialGradient(W/2, H/2, 50, W/2, H/2, W/1.2);
-  rg.addColorStop(0, accent + '22');
-  rg.addColorStop(.6, accentDark + '11');
+  
+  const accent = cert?.color || '#ffd700';
+  const accentDark = cert?.accent || '#f59e0b';
+  
+  // 1. BACKGROUND
+  const bg = ctx.createLinearGradient(0, 0, W, H);
+  bg.addColorStop(0, '#0a0e1f');
+  bg.addColorStop(0.5, '#131936');
+  bg.addColorStop(1, '#0a0e1f');
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, W, H);
+  
+  const rg = ctx.createRadialGradient(W/2, H/2, 50, W/2, H/2, W/1.3);
+  rg.addColorStop(0, accent + '15');
+  rg.addColorStop(0.5, accentDark + '08');
   rg.addColorStop(1, 'rgba(0,0,0,0)');
-  ctx.fillStyle = rg; ctx.fillRect(0,0,W,H);
-
-  ctx.strokeStyle = accent;
-  ctx.lineWidth = 6;
-  ctx.strokeRect(30, 30, W-60, H-60);
-  ctx.strokeStyle = accentDark + '99';
-  ctx.lineWidth = 2;
-  ctx.strokeRect(52, 52, W-104, H-104);
-
-  const corner = 70;
-  ctx.strokeStyle = accent;
-  ctx.lineWidth = 5; ctx.lineCap = 'round';
-  ctx.beginPath(); ctx.moveTo(52,52+corner); ctx.lineTo(52,52); ctx.lineTo(52+corner,52); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(W-52-corner,52); ctx.lineTo(W-52,52); ctx.lineTo(W-52,52+corner); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(52,H-52-corner); ctx.lineTo(52,H-52); ctx.lineTo(52+corner,H-52); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(W-52-corner,H-52); ctx.lineTo(W-52,H-52); ctx.lineTo(W-52,H-52-corner); ctx.stroke();
-
-  ctx.textAlign = 'center';
-  ctx.font = 'bold 60px Outfit, sans-serif';
-  ctx.fillText(cert?.icon || '🏆', W/2, 155);
-
-  ctx.fillStyle = accent;
-  ctx.font = 'bold 26px Outfit, sans-serif';
-  ctx.fillText('N E U R O G R I D   I Q', W/2, 210);
-
+  ctx.fillStyle = rg;
+  ctx.fillRect(0, 0, W, H);
+  
+  // Holographic foil
+  const holo = ctx.createLinearGradient(0, 0, W, H);
+  holo.addColorStop(0, 'rgba(255,0,150,0.04)');
+  holo.addColorStop(0.3, 'rgba(0,255,200,0.04)');
+  holo.addColorStop(0.6, 'rgba(100,100,255,0.04)');
+  holo.addColorStop(1, 'rgba(255,200,0,0.04)');
+  ctx.fillStyle = holo;
+  ctx.fillRect(0, 0, W, H);
+  
+  // 2. WATERMARK
+  ctx.save();
+  ctx.globalAlpha = 0.04;
   ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 200px Outfit, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.translate(W/2, H/2);
+  ctx.rotate(-Math.PI / 12);
+  ctx.fillText('MINDMASTER', 0, 0);
+  ctx.restore();
+  
+  // 3. BORDERS
+  ctx.strokeStyle = accent;
+  ctx.lineWidth = 10;
+  ctx.strokeRect(30, 30, W - 60, H - 60);
+  
+  ctx.strokeStyle = accentDark + 'AA';
+  ctx.lineWidth = 2.5;
+  ctx.strokeRect(52, 52, W - 104, H - 104);
+  
+  ctx.strokeStyle = accent + '44';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(64, 64, W - 128, H - 128);
+  
+  // 4. CORNER ORNAMENTS
+  const cornerLen = 100;
+  ctx.strokeStyle = accent;
+  ctx.lineWidth = 7;
+  ctx.lineCap = 'round';
+  
+  [[52,52,1,1],[W-52,52,-1,1],[52,H-52,1,-1],[W-52,H-52,-1,-1]].forEach(([x,y,dx,dy])=>{
+    ctx.beginPath();
+    ctx.moveTo(x, y + cornerLen*dy);
+    ctx.lineTo(x, y);
+    ctx.lineTo(x + cornerLen*dx, y);
+    ctx.stroke();
+  });
+  
+  [[52,52],[W-52,52],[52,H-52],[W-52,H-52]].forEach(([x,y])=>{
+    ctx.beginPath();
+    ctx.arc(x, y, 10, 0, Math.PI*2);
+    ctx.fillStyle = accent;
+    ctx.fill();
+    ctx.strokeStyle = accentDark;
+    ctx.lineWidth = 2;
+    ctx.stroke();
+  });
+  
+  // 5. LOGO
+  drawLogo(ctx, W/2, 140, accent, accentDark);
+  
+  // 6. GAME NAME
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'alphabetic';
+  
+  const nameGrad = ctx.createLinearGradient(W/2 - 350, 0, W/2 + 350, 0);
+  nameGrad.addColorStop(0, accent);
+  nameGrad.addColorStop(0.5, '#ffffff');
+  nameGrad.addColorStop(1, accent);
+  ctx.fillStyle = nameGrad;
   ctx.font = 'bold 68px Outfit, sans-serif';
-  ctx.fillText((cert?.name || 'CERTIFICATE').toUpperCase(), W/2, 305);
-
-  ctx.fillStyle = accent;
-  ctx.font = '600 22px Outfit, sans-serif';
-  ctx.fillText('— CERTIFICATE OF ACHIEVEMENT —', W/2, 345);
-
-  ctx.fillStyle = '#c5ccef';
-  ctx.font = '500 22px Outfit, sans-serif';
-  ctx.fillText('This certificate is proudly awarded to', W/2, 420);
-
-  ctx.fillStyle = accent;
-  ctx.font = 'bold 70px Outfit, sans-serif';
-  ctx.fillText(name, W/2, 510);
-
-  ctx.strokeStyle = accent + '77';
+  ctx.fillText('MINDMASTER', W/2, 255);
+  
+  ctx.fillStyle = accentDark;
+  ctx.font = '600 18px Outfit, sans-serif';
+  ctx.fillText('B R A I N   T R A I N I N G   A C A D E M Y', W/2, 288);
+  
+  // Divider
+  ctx.strokeStyle = accent + '88';
   ctx.lineWidth = 2;
   ctx.beginPath();
-  ctx.moveTo(W/2 - 320, 535);
-  ctx.lineTo(W/2 + 320, 535);
+  ctx.moveTo(W/2 - 280, 318); ctx.lineTo(W/2 - 25, 318);
   ctx.stroke();
-
-  ctx.fillStyle = '#b9c1e6';
+  ctx.beginPath();
+  ctx.moveTo(W/2 + 25, 318); ctx.lineTo(W/2 + 280, 318);
+  ctx.stroke();
+  
+  // Diamond
+  ctx.beginPath();
+  ctx.moveTo(W/2, 306);
+  ctx.lineTo(W/2 + 12, 318);
+  ctx.lineTo(W/2, 330);
+  ctx.lineTo(W/2 - 12, 318);
+  ctx.closePath();
+  ctx.fillStyle = accent;
+  ctx.fill();
+  
+  // 7. TITLE
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 52px Outfit, sans-serif';
+  ctx.fillText('CERTIFICATE', W/2, 410);
+  
+  ctx.fillStyle = accent;
+  ctx.font = '600 22px Outfit, sans-serif';
+  ctx.fillText('OF ACHIEVEMENT', W/2, 445);
+  
+  // 8. AWARDED TO
+  ctx.fillStyle = '#8b95c9';
   ctx.font = '500 22px Outfit, sans-serif';
-  ctx.fillText(`for reaching Level ${cert?.lvl || '—'} in the NeuroGrid IQ Brain Challenge`, W/2, 585);
-
+  ctx.fillText('This certificate is proudly presented to', W/2, 505);
+  
+  // 9. PLAYER NAME
+  const playerGrad = ctx.createLinearGradient(W/2 - 500, 0, W/2 + 500, 0);
+  playerGrad.addColorStop(0, accent);
+  playerGrad.addColorStop(0.5, '#ffffff');
+  playerGrad.addColorStop(1, accent);
+  ctx.fillStyle = playerGrad;
+  ctx.font = 'bold 88px Outfit, sans-serif';
+  ctx.fillText(name, W/2, 610);
+  
+  // Underline
+  ctx.strokeStyle = accent + '77';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(W/2 - 450, 640); ctx.lineTo(W/2 + 450, 640);
+  ctx.stroke();
+  
+  // 10. ACHIEVEMENT TEXT
+  ctx.fillStyle = '#c5ccef';
+  ctx.font = '500 24px Outfit, sans-serif';
+  ctx.fillText(`for reaching Level ${cert?.lvl || '—'} and earning the`, W/2, 690);
+  
+  // Badge
+  const badgeText = (cert?.name || 'MASTER').toUpperCase() + ' RANK';
+  ctx.font = 'bold 28px Outfit, sans-serif';
+  const badgeWidth = ctx.measureText(badgeText).width + 80;
+  const badgeX = W/2 - badgeWidth/2;
+  const badgeY = 710;
+  const badgeH = 52;
+  
+  const badgeGrad = ctx.createLinearGradient(badgeX, 0, badgeX + badgeWidth, 0);
+  badgeGrad.addColorStop(0, accent + '30');
+  badgeGrad.addColorStop(0.5, accent + '50');
+  badgeGrad.addColorStop(1, accent + '30');
+  ctx.fillStyle = badgeGrad;
+  roundRect(ctx, badgeX, badgeY, badgeWidth, badgeH, 26);
+  ctx.fill();
+  
+  ctx.strokeStyle = accent;
+  ctx.lineWidth = 2.5;
+  roundRect(ctx, badgeX, badgeY, badgeWidth, badgeH, 26);
+  ctx.stroke();
+  
+  ctx.fillStyle = accent;
+  ctx.font = 'bold 26px Outfit, sans-serif';
+  ctx.fillText(badgeText, W/2, badgeY + 36);
+  
+  // 11. STATS BOXES
   const stats = [
     { label: 'IQ SCORE', value: G.finalIQ, color: accent },
     { label: 'LEVEL', value: G.level, color: accentDark },
     { label: 'SCORE', value: G.score, color: '#39e58c' },
     { label: 'ACCURACY', value: G.finalAcc + '%', color: '#ff5c7a' }
   ];
-  const boxW = 210, boxH = 100, gap = 24;
+  
+  const boxW = 200, boxH = 100, gap = 22;
   const totalW = stats.length * boxW + (stats.length - 1) * gap;
   const startX = (W - totalW) / 2;
-  const boxY = 630;
-
+  const boxY = 800;
+  
   stats.forEach((s, i) => {
     const x = startX + i * (boxW + gap);
-    ctx.fillStyle = 'rgba(0,0,0,.35)';
-    roundRect(ctx, x, boxY, boxW, boxH, 14); ctx.fill();
-    ctx.strokeStyle = s.color;
-    ctx.lineWidth = 2;
-    roundRect(ctx, x, boxY, boxW, boxH, 14); ctx.stroke();
-
+    
+    ctx.fillStyle = 'rgba(0,0,0,.5)';
+    roundRect(ctx, x, boxY, boxW, boxH, 14);
+    ctx.fill();
+    
+    ctx.strokeStyle = s.color + 'AA';
+    ctx.lineWidth = 2.5;
+    roundRect(ctx, x, boxY, boxW, boxH, 14);
+    ctx.stroke();
+    
     ctx.fillStyle = s.color;
-    ctx.font = 'bold 34px Outfit, sans-serif';
+    ctx.font = 'bold 36px Outfit, sans-serif';
     ctx.textAlign = 'center';
     ctx.fillText(s.value, x + boxW/2, boxY + 50);
-
+    
     ctx.fillStyle = '#7c86b8';
     ctx.font = '600 13px Outfit, sans-serif';
     ctx.fillText(s.label, x + boxW/2, boxY + 78);
   });
-
+  
+  // 12. DATE
   const dateStr = new Date().toLocaleDateString('en-GB', {
     day: '2-digit', month: 'short', year: 'numeric'
   });
+  
   ctx.textAlign = 'left';
   ctx.fillStyle = '#7c86b8';
-  ctx.font = '500 16px Outfit, sans-serif';
-  ctx.fillText('DATE', 120, H - 110);
+  ctx.font = '600 14px Outfit, sans-serif';
+  ctx.fillText('ISSUED ON', 130, H - 155);
+  
   ctx.fillStyle = '#e8ecff';
   ctx.font = 'bold 22px Outfit, sans-serif';
-  ctx.fillText(dateStr, 120, H - 80);
-
-  ctx.textAlign = 'right';
-  ctx.fillStyle = '#7c86b8';
-  ctx.font = '500 16px Outfit, sans-serif';
-  ctx.fillText('NEUROGRID IQ TEAM', W - 120, H - 110);
-  ctx.strokeStyle = 'rgba(232,236,255,.4)';
-  ctx.lineWidth = 1.5;
+  ctx.fillText(dateStr, 130, H - 128);
+  
+  // 13. SEAL
+  drawSeal(ctx, W - 210, H - 145, accent, accentDark);
+  
+  // 14. ADMIN SIGNATURE
+  const sigX = 130;
+  const sigY = H - 85;
+  
+  ctx.strokeStyle = accent + '88';
+  ctx.lineWidth = 2;
   ctx.beginPath();
-  ctx.moveTo(W - 320, H - 72);
-  ctx.lineTo(W - 120, H - 72);
+  ctx.moveTo(sigX, sigY - 8);
+  ctx.lineTo(sigX + 320, sigY - 8);
   ctx.stroke();
-  ctx.fillStyle = '#e8ecff';
-  ctx.font = 'italic 20px Outfit, sans-serif';
-  ctx.fillText('Brain Training Lab', W - 120, H - 85);
-
-  const cx = W/2, cy = H - 85;
-  ctx.beginPath(); ctx.arc(cx, cy, 42, 0, Math.PI*2);
-  ctx.fillStyle = accent + '22'; ctx.fill();
-  ctx.strokeStyle = accent; ctx.lineWidth = 2.5; ctx.stroke();
-  ctx.fillStyle = accent; ctx.font = 'bold 22px Outfit, sans-serif';
+  
+  ctx.fillStyle = accent;
+  ctx.font = 'italic bold 28px Outfit, sans-serif';
+  ctx.textAlign = 'left';
+  ctx.fillText(ADMIN_NAME, sigX + 5, sigY + 22);
+  
+  ctx.fillStyle = '#8b95c9';
+  ctx.font = '600 13px Outfit, sans-serif';
+  ctx.fillText('FOUNDER & CREATOR — ' + GAME_NAME, sigX + 5, sigY + 44);
+  
+  // 15. CERT ID + AUTHENTIC TEXT
+  const certId = 'MM-' + Date.now().toString(36).toUpperCase().slice(-8);
+  
+  ctx.fillStyle = accent + '55';
+  ctx.font = '600 12px Outfit, sans-serif';
   ctx.textAlign = 'center';
-  ctx.fillText(cert?.icon || '🏆', cx, cy + 8);
+  ctx.fillText('★ AUTHENTIC CERTIFICATE ★ ' + GAME_NAME + ' ★ VERIFIED BY ' + ADMIN_NAME + ' ★', W/2, H - 70);
+  
+  ctx.fillStyle = '#7c86b8';
+  ctx.font = '500 12px monospace';
+  ctx.fillText('CERT ID: ' + certId, W/2, H - 50);
 }
 
+/* =========================================================
+   LOGO
+   ========================================================= */
+function drawLogo(ctx, cx, cy, accent, accentDark){
+  const r = 48;
+  
+  const glow = ctx.createRadialGradient(cx, cy, r*0.3, cx, cy, r*2);
+  glow.addColorStop(0, accent + '50');
+  glow.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = glow;
+  ctx.beginPath();
+  ctx.arc(cx, cy, r*2, 0, Math.PI*2);
+  ctx.fill();
+  
+  ctx.beginPath();
+  for(let i=0; i<6; i++){
+    const angle = (Math.PI/3) * i - Math.PI/2;
+    const x = cx + Math.cos(angle) * r;
+    const y = cy + Math.sin(angle) * r;
+    if(i===0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  }
+  ctx.closePath();
+  
+  const hexGrad = ctx.createLinearGradient(cx - r, cy - r, cx + r, cy + r);
+  hexGrad.addColorStop(0, accent);
+  hexGrad.addColorStop(1, accentDark);
+  ctx.fillStyle = hexGrad;
+  ctx.fill();
+  
+  ctx.strokeStyle = '#ffffff';
+  ctx.lineWidth = 2.5;
+  ctx.stroke();
+  
+  ctx.strokeStyle = '#0a0e1f';
+  ctx.lineWidth = 3;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  
+  const spacing = 15;
+  for(let row=-1; row<=1; row++){
+    for(let col=-1; col<=1; col++){
+      ctx.beginPath();
+      ctx.arc(cx + col*spacing, cy + row*spacing, 3.5, 0, Math.PI*2);
+      ctx.fillStyle = '#0a0e1f';
+      ctx.fill();
+    }
+  }
+  
+  ctx.beginPath();
+  ctx.moveTo(cx - spacing, cy - spacing);
+  ctx.lineTo(cx, cy);
+  ctx.lineTo(cx + spacing, cy - spacing);
+  ctx.moveTo(cx - spacing, cy + spacing);
+  ctx.lineTo(cx, cy);
+  ctx.lineTo(cx + spacing, cy + spacing);
+  ctx.moveTo(cx - spacing, cy);
+  ctx.lineTo(cx + spacing, cy);
+  ctx.stroke();
+  
+  ctx.beginPath();
+  ctx.arc(cx, cy, 6, 0, Math.PI*2);
+  ctx.fillStyle = '#ffffff';
+  ctx.fill();
+}
+
+/* =========================================================
+   OFFICIAL SEAL
+   ========================================================= */
+function drawSeal(ctx, cx, cy, accent, accentDark){
+  const r = 75;
+  
+  const glow = ctx.createRadialGradient(cx, cy, r*0.5, cx, cy, r*1.6);
+  glow.addColorStop(0, accent + '35');
+  glow.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = glow;
+  ctx.beginPath();
+  ctx.arc(cx, cy, r*1.6, 0, Math.PI*2);
+  ctx.fill();
+  
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, 0, Math.PI*2);
+  ctx.strokeStyle = accent;
+  ctx.lineWidth = 5;
+  ctx.stroke();
+  
+  ctx.beginPath();
+  ctx.arc(cx, cy, r - 14, 0, Math.PI*2);
+  ctx.strokeStyle = accentDark;
+  ctx.lineWidth = 2.5;
+  ctx.stroke();
+  
+  ctx.beginPath();
+  ctx.arc(cx, cy, r - 26, 0, Math.PI*2);
+  ctx.strokeStyle = accent + '88';
+  ctx.lineWidth = 1.5;
+  ctx.setLineDash([5, 5]);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  
+  const centerGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, r - 26);
+  centerGrad.addColorStop(0, accent + '18');
+  centerGrad.addColorStop(1, accent + '05');
+  ctx.fillStyle = centerGrad;
+  ctx.beginPath();
+  ctx.arc(cx, cy, r - 26, 0, Math.PI*2);
+  ctx.fill();
+  
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.fillStyle = accent;
+  ctx.beginPath();
+  for(let i=0; i<10; i++){
+    const angle = (Math.PI/5) * i - Math.PI/2;
+    const radius = i % 2 === 0 ? 22 : 10;
+    const x = Math.cos(angle) * radius;
+    const y = Math.sin(angle) * radius;
+    if(i===0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  }
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
+  
+  drawArcText(ctx, 'MINDMASTER', cx, cy, r - 8, -Math.PI/2, 13, accent);
+  drawArcText(ctx, 'OFFICIAL • VERIFIED', cx, cy, r - 8, Math.PI/2, 13, accentDark);
+  
+  ctx.fillStyle = accentDark;
+  ctx.font = 'bold 13px Outfit, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(new Date().getFullYear(), cx, cy + 42);
+}
+
+/* =========================================================
+   ARC TEXT HELPER
+   ========================================================= */
+function drawArcText(ctx, text, cx, cy, radius, startAngle, fontSize, color){
+  ctx.save();
+  ctx.fillStyle = color;
+  ctx.font = `bold ${fontSize}px Outfit, sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  
+  const angleStep = 0.09;
+  const totalAngle = text.length * angleStep;
+  let angle = startAngle - totalAngle / 2;
+  
+  for(let i = 0; i < text.length; i++){
+    const char = text[i];
+    const x = cx + Math.cos(angle) * radius;
+    const y = cy + Math.sin(angle) * radius;
+    
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(angle + Math.PI/2);
+    ctx.fillText(char, 0, 0);
+    ctx.restore();
+    
+    angle += angleStep;
+  }
+  ctx.restore();
+}
+
+/* =========================================================
+   ROUND RECT HELPER
+   ========================================================= */
 function roundRect(ctx, x, y, w, h, r){
   ctx.beginPath();
   ctx.moveTo(x + r, y);
@@ -1025,11 +1316,17 @@ function roundRect(ctx, x, y, w, h, r){
   ctx.closePath();
 }
 
+/* =========================================================
+   BUTTON HANDLERS
+   ========================================================= */
+$('btn-play').onclick = startGame;   // ⭐ Always from best level (or Level 1 if new)
+$('btn-again').onclick = startGame;  // ⭐ Try Again bhi best level se
+
 $('btn-download').onclick = ()=>{
   const name = (($('cert-name').value.trim() || 'Brain_Master')).replace(/\s+/g,'_');
   const cvs = $('cert-canvas');
   const link = document.createElement('a');
-  link.download = `NeuroGrid_${certData?.name || 'Certificate'}_${name}.png`;
+  link.download = `MindMaster_${certData?.name || 'Certificate'}_${name}.png`;
   link.href = cvs.toDataURL('image/png');
   link.click();
   beep(880,140,'sine',.07);
@@ -1041,7 +1338,6 @@ $('btn-cert-back').onclick = ()=>{
   else show('s-over');
 };
 
-$('btn-again').onclick = startGame;
 $('btn-home').onclick  = ()=>{ enterHome(); };
 $('btn-final-cert').onclick = ()=>{
   const c = CERT_CONFIG.find(x => x.lvl === 500);
@@ -1050,7 +1346,7 @@ $('btn-final-cert').onclick = ()=>{
 $('btn-final-home').onclick = ()=>{ enterHome(); };
 
 /* =========================================================
-   INIT - Load guest data from Firebase
+   INIT
    ========================================================= */
 (async function init(){
   await loadCertConfig();
@@ -1062,7 +1358,6 @@ $('btn-final-home').onclick = ()=>{ enterHome(); };
       USER_DATA.scores = scores;
       delete USER_DATA.scores._init;
     } else {
-      // Create guest profile on first run
       const defaultProfile = {
         username: 'guest',
         createdAt: Date.now(),
