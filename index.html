@@ -34,6 +34,12 @@
   .screen.active{display:block}
   @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 
+  .logo{display:flex;align-items:center;gap:10px;justify-content:center;margin-bottom:6px}
+  .logo i{width:12px;height:12px;border-radius:4px;display:block}
+  .logo i:nth-child(1){background:var(--accent);box-shadow:0 0 24px rgba(77,226,192,.35)}
+  .logo i:nth-child(2){background:var(--accent2)}
+  .logo i:nth-child(3){background:var(--warn)}
+
   h1{font-size:30px;font-weight:800;text-align:center;letter-spacing:-.5px;
      background:linear-gradient(90deg,#fff,#8ea0ff 60%,#4de2c0);
      -webkit-background-clip:text;background-clip:text;color:transparent}
@@ -59,6 +65,15 @@
   .btn.gold{background:linear-gradient(135deg,#ffd166,#ff9f1c);color:#3a2000;box-shadow:0 10px 30px rgba(255,159,28,.35)}
   .btn+.btn{margin-top:10px}
 
+  .field{margin-bottom:12px}
+  .field label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted);margin-bottom:6px;font-weight:600}
+  .field input{
+    width:100%;padding:13px 15px;border-radius:12px;border:1px solid var(--line);
+    background:var(--panel2);color:var(--txt);font-family:inherit;font-size:14.5px;
+    font-weight:600;outline:none;transition:.15s;
+  }
+  .field input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(77,226,192,.15)}
+
   .hud{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:12px}
   .chip{background:var(--panel2);border:1px solid var(--line);border-radius:11px;padding:7px 12px;font-size:12px;font-weight:600}
   .chip b{color:var(--accent);font-weight:800}
@@ -80,7 +95,6 @@
   .banner.bad{border-color:var(--warn);box-shadow:0 0 22px rgba(255,92,122,.25)}
   .banner.bad .v{color:var(--warn)}
 
-  /* ⭐ Hint Box */
   .hint-box{
     background:linear-gradient(135deg, rgba(255,209,102,.12), rgba(255,159,28,.06));
     border:1px solid var(--gold);
@@ -92,16 +106,8 @@
     gap:10px;
     animation:fade .3s ease;
   }
-  .hint-box .hint-icon{
-    font-size:20px;
-    flex-shrink:0;
-  }
-  .hint-box .hint-text{
-    font-size:13px;
-    font-weight:600;
-    color:var(--gold);
-    line-height:1.4;
-  }
+  .hint-box .hint-icon{font-size:20px;flex-shrink:0}
+  .hint-box .hint-text{font-size:13px;font-weight:600;color:var(--gold);line-height:1.4}
 
   .timer{height:5px;background:#1b2140;border-radius:99px;overflow:hidden;margin-bottom:14px}
   .timer i{display:block;height:100%;width:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:99px;transition:width .06s linear}
@@ -180,12 +186,25 @@
   .cert-card .lv{font-size:10.5px;color:var(--muted);margin-top:2px}
   .cert-card.unlocked{border-color:var(--gold);box-shadow:0 0 18px rgba(255,209,102,.15)}
 
+  .user-badge{display:flex;align-items:center;justify-content:space-between;background:var(--panel2);
+    border:1px solid var(--line);border-radius:13px;padding:10px 14px;margin-bottom:14px}
+  .user-badge .who{font-size:13px;color:var(--muted)}
+  .user-badge .who b{color:var(--accent);font-weight:800}
+  .user-badge button{padding:6px 12px;border-radius:9px;border:1px solid var(--line);
+    background:transparent;color:var(--muted);font-family:inherit;font-size:11.5px;
+    font-weight:700;cursor:pointer;transition:.15s}
+  .user-badge button:hover{border-color:var(--accent);color:var(--accent)}
+
   .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);
     background:linear-gradient(135deg,#39e58c,#4de2c0);color:#04121a;padding:13px 22px;
     border-radius:14px;font-weight:700;font-size:13.5px;box-shadow:0 12px 40px rgba(57,229,140,.4);
     opacity:0;transition:.35s;z-index:300;pointer-events:none;max-width:90vw}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
   .toast.err{background:linear-gradient(135deg,#ff5c7a,#ff2d55);color:#fff;box-shadow:0 12px 40px rgba(255,92,122,.4)}
+
+  .loading{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.3);
+    border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;margin-right:8px;vertical-align:middle}
+  @keyframes spin{to{transform:rotate(360deg)}}
 
   .special-end{text-align:center;padding:20px}
   .special-end .ico{font-size:80px;margin-bottom:16px;animation:float 2s ease-in-out infinite}
@@ -199,10 +218,41 @@
 <div class="app">
   <div class="flash" id="flash"></div>
 
-  <!-- HOME -->
-  <section class="screen active" id="s-home">
+  <!-- ⭐ NAME ENTRY SCREEN -->
+  <section class="screen active" id="s-name">
+    <div class="logo"><i></i><i></i><i></i></div>
     <h1>MindMaster IQ</h1>
-    <p class="tag">Memory • Rotation • Logic<br>Ek game, poora brain workout.</p>
+    <p class="tag">Apna naam likho taaki aapki progress save ho jaye 🧠</p>
+
+    <div class="field">
+      <label>Apna Naam / Username</label>
+      <input 
+        type="text" 
+        id="name-input" 
+        placeholder="jaise: suraj123" 
+        maxlength="20" 
+        autocomplete="off"
+      />
+    </div>
+
+    <button class="btn" id="btn-name-continue">▶ Continue</button>
+    <div class="err" id="name-err" style="color:var(--warn);font-size:12.5px;text-align:center;margin-top:8px;min-height:16px"></div>
+
+    <p style="text-align:center;font-size:11.5px;color:var(--muted);margin-top:16px;line-height:1.5">
+      💡 Ye naam yaad rakho — isse aapki progress hamesha save rahegi.<br>
+      Kisi bhi phone/laptop pe same naam daalo → wahi progress milegi!
+    </p>
+  </section>
+
+  <!-- HOME -->
+  <section class="screen" id="s-home">
+    <div class="user-badge">
+      <div class="who">👤 <b id="h-user">player</b></div>
+      <button id="btn-change-user">Change</button>
+    </div>
+
+    <h1>MindMaster IQ</h1>
+    <p class="tag">Ready for brain workout? 🧠</p>
 
     <div class="stats">
       <div class="stat"><b id="h-best">0</b><span>Best Score</span></div>
@@ -234,13 +284,11 @@
       <span class="v" id="g-v">Dekho aur yaad karo…</span>
     </div>
 
-    <!-- Hint Box -->
     <div class="hint-box" id="g-hint" style="display:none">
       <span class="hint-icon">💡</span>
       <span class="hint-text" id="g-hint-text">Hint yahan dikhega</span>
     </div>
 
-    <!-- Reveal Button -->
     <button class="btn ghost" id="btn-reveal" style="display:none;margin-bottom:12px">
       👁 Show Correct Answer
     </button>
@@ -433,26 +481,70 @@ async function loadCertConfig(){
 }
 
 /* =========================================================
-   ⭐ UNIQUE USER ID (localStorage based)
+   STATE — Name Based Profile
    ========================================================= */
-function getOrCreateUserId(){
-  let uid = localStorage.getItem('mm_user_id');
-  if(!uid){
-    uid = 'user_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 10);
-    localStorage.setItem('mm_user_id', uid);
-  }
-  return uid;
+let CURRENT_USER = null;
+let USER_DATA = { profile:{}, scores:{} };
+
+// ⭐ localStorage helpers
+function saveUsername(name){
+  try{ localStorage.setItem('mm_username', name); }catch(e){}
+}
+function getSavedUsername(){
+  try{ return localStorage.getItem('mm_username'); }catch(e){ return null; }
+}
+function clearUsername(){
+  try{ localStorage.removeItem('mm_username'); }catch(e){}
 }
 
-const USER_ID = getOrCreateUserId();
-let CURRENT_USER = { username: USER_ID, key: USER_ID };
-let USER_DATA = { profile:{}, scores:{} };
+// ⭐ Username ko Firebase key me convert karo
+function usernameToKey(name){
+  return name.toLowerCase().trim().replace(/[.#$/\[\]]/g, '_');
+}
+
+/* =========================================================
+   LOAD OR CREATE PROFILE
+   ========================================================= */
+async function loadOrCreateProfile(name){
+  const key = usernameToKey(name);
+  CURRENT_USER = { username: name, key };
+  saveUsername(name);
+  
+  try{
+    const profile = await fbGet(`/users/${key}/profile`);
+    if(profile){
+      // Existing user — data load
+      USER_DATA.profile = profile;
+      const scores = await fbGet(`/users/${key}/scores`) || {};
+      USER_DATA.scores = scores;
+      delete USER_DATA.scores._init;
+      toast('✅ Welcome back, ' + name + '!');
+    } else {
+      // Naya user — fresh profile
+      const newProfile = {
+        username: name,
+        createdAt: Date.now(),
+        bestScore: 0, bestLevel: 1, bestIQ: 0, bestStreak: 0
+      };
+      await fbPut(`/users/${key}/profile`, newProfile);
+      await fbPut(`/users/${key}/scores`, { _init: true });
+      USER_DATA.profile = newProfile;
+      USER_DATA.scores = {};
+      toast('🎉 Welcome, ' + name + '!');
+    }
+  }catch(e){
+    console.error('Load failed', e);
+    USER_DATA.profile = { username: name, bestScore: 0, bestLevel: 1, bestIQ: 0, bestStreak: 0 };
+  }
+  enterHome();
+}
 
 /* =========================================================
    HOME
    ========================================================= */
 function enterHome(){
   const p = USER_DATA.profile || {};
+  $('h-user').textContent = CURRENT_USER?.username || 'player';
   $('h-best').textContent = p.bestScore || 0;
   $('h-lvl').textContent = p.bestLevel || 1;
   $('h-streak').textContent = p.bestStreak || 0;
@@ -516,15 +608,12 @@ const G = {
 const shuffle = a => { for(let i=a.length-1;i>0;i--){const j=(Math.random()*(i+1))|0;[a[i],a[j]]=[a[j],a[i]];} return a; };
 const rnd = (a,b) => a + Math.floor(Math.random()*(b-a+1));
 
-/* ⭐ TIMER INCREASED — ab zyada time milega */
+// ⭐ Timer badhaya
 function levelConfig(level){
   const n        = level <= 3 ? 3 : level <= 6 ? 4 : level <= 10 ? 5 : 6;
   const maxTiles = n*n - 2;
   const tiles    = Math.min(maxTiles, 3 + Math.floor(level * 0.9));
-  
-  // ⭐ Timer: Base 6500ms (6.5s) se start, har level 100ms kam, min 3000ms (3s)
   const showMs   = Math.max(3000, 6500 - level * 100);
-  
   const mathOn   = level >= 3;
   let transform  = 'none';
   if (level >= 4) transform = 'rot90';
@@ -549,7 +638,6 @@ const TRANSFORM_HINT_HINDI = {
   mirrorV: 'Original pattern ko Up-Down (ऊपर-नीचे) mirror kiya gaya hai.'
 };
 
-// FIXED: rot90 is now CLOCKWISE
 function applyTransform(idx, n, type){
   if (type === 'none') return [...idx];
   return idx.map(i=>{
@@ -609,7 +697,6 @@ function runTimer(ms, onDone){
 function stopTimer(){ clearInterval(G.timerId); $('g-timer').style.width='100%'; }
 function hideTimer(){ $('g-timerWrap').classList.add('hide'); }
 
-/* ⭐ START GAME — Always from best level */
 function startGame(){
   const bestLvl = USER_DATA.profile?.bestLevel || 1;
   G.level = bestLvl;
@@ -662,7 +749,6 @@ function startRound(){
 }
 
 function showPattern(cfg){
-  // ⭐ Time display me seconds dikhao
   const secs = (cfg.showMs/1000).toFixed(1);
   setBanner('YAAD KARO', `${cfg.tiles} tiles • ${secs}s time`);
   const cs = cells();
@@ -977,19 +1063,15 @@ let certData = null;
 function openCertificate(cert){
   certData = cert;
   $('cert-subtitle').textContent = `${cert.icon} ${cert.name} — Level ${cert.lvl} Milestone`;
-  const savedName = USER_DATA.profile?.username || 'Brain Master';
-  const isAutoName = savedName.startsWith('Player_') || savedName === 'guest';
-  $('cert-name').value = isAutoName ? '' : savedName;
-  drawCertificate(isAutoName ? 'Brain Master' : savedName, cert);
+  const savedName = CURRENT_USER?.username || 'Brain Master';
+  $('cert-name').value = savedName;
+  drawCertificate(savedName, cert);
   show('s-cert');
 }
 $('cert-name').addEventListener('input', e=>{
   drawCertificate(e.target.value.trim() || 'Brain Master', certData);
 });
 
-/* =========================================================
-   PREMIUM CERTIFICATE
-   ========================================================= */
 function drawCertificate(name, cert){
   const cvs = $('cert-canvas');
   const ctx = cvs.getContext('2d');
@@ -1235,9 +1317,6 @@ function drawCertificate(name, cert){
   ctx.fillText('CERT ID: ' + certId, W/2, H - 50);
 }
 
-/* =========================================================
-   LOGO
-   ========================================================= */
 function drawLogo(ctx, cx, cy, accent, accentDark){
   const r = 48;
   
@@ -1301,9 +1380,6 @@ function drawLogo(ctx, cx, cy, accent, accentDark){
   ctx.fill();
 }
 
-/* =========================================================
-   OFFICIAL SEAL
-   ========================================================= */
 function drawSeal(ctx, cx, cy, accent, accentDark){
   const r = 75;
   
@@ -1369,9 +1445,6 @@ function drawSeal(ctx, cx, cy, accent, accentDark){
   ctx.fillText(new Date().getFullYear(), cx, cy + 42);
 }
 
-/* =========================================================
-   ARC TEXT
-   ========================================================= */
 function drawArcText(ctx, text, cx, cy, radius, startAngle, fontSize, color){
   ctx.save();
   ctx.fillStyle = color;
@@ -1399,9 +1472,6 @@ function drawArcText(ctx, text, cx, cy, radius, startAngle, fontSize, color){
   ctx.restore();
 }
 
-/* =========================================================
-   ROUND RECT
-   ========================================================= */
 function roundRect(ctx, x, y, w, h, r){
   ctx.beginPath();
   ctx.moveTo(x + r, y);
@@ -1419,6 +1489,49 @@ function roundRect(ctx, x, y, w, h, r){
 /* =========================================================
    BUTTON HANDLERS
    ========================================================= */
+$('btn-name-continue').onclick = async () => {
+  const name = $('name-input').value.trim();
+  const err = $('name-err');
+  err.textContent = '';
+  
+  if(name.length < 3){
+    err.textContent = '❌ Naam minimum 3 characters ka hona chahiye';
+    return;
+  }
+  if(name.length > 20){
+    err.textContent = '❌ Naam maximum 20 characters';
+    return;
+  }
+  if(!/^[a-zA-Z0-9_ ]+$/.test(name)){
+    err.textContent = '❌ Sirf letters, numbers, _ aur space allowed';
+    return;
+  }
+  
+  const btn = $('btn-name-continue');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="loading"></span> Loading...';
+  
+  await loadOrCreateProfile(name);
+  
+  btn.disabled = false;
+  btn.innerHTML = '▶ Continue';
+};
+
+$('name-input').addEventListener('keypress', e => {
+  if(e.key === 'Enter') $('btn-name-continue').click();
+});
+
+$('btn-change-user').onclick = () => {
+  if(confirm('Kya aap doosre naam se login karna chahte ho?\n\nAapki current progress save rahegi, bas naye naam se login hoge.')){
+    clearUsername();
+    CURRENT_USER = null;
+    USER_DATA = { profile:{}, scores:{} };
+    $('name-input').value = '';
+    $('name-err').textContent = '';
+    show('s-name');
+  }
+};
+
 $('btn-play').onclick = startGame;
 $('btn-again').onclick = startGame;
 
@@ -1450,28 +1563,15 @@ $('btn-final-home').onclick = ()=>{ enterHome(); };
    ========================================================= */
 (async function init(){
   await loadCertConfig();
-  try{
-    const profile = await fbGet(`/users/${USER_ID}/profile`);
-    if(profile){
-      USER_DATA.profile = profile;
-      const scores = await fbGet(`/users/${USER_ID}/scores`) || {};
-      USER_DATA.scores = scores;
-      delete USER_DATA.scores._init;
-    } else {
-      const defaultProfile = {
-        username: 'Player_' + USER_ID.slice(-6),
-        createdAt: Date.now(),
-        bestScore: 0, bestLevel: 1, bestIQ: 0, bestStreak: 0
-      };
-      await fbPut(`/users/${USER_ID}/profile`, defaultProfile);
-      USER_DATA.profile = defaultProfile;
-      await fbPut(`/users/${USER_ID}/scores`, { _init: true });
-    }
-  }catch(e){
-    console.warn('Could not load user data from Firebase', e);
-    USER_DATA.profile = { username: 'Guest', bestScore: 0, bestLevel: 1, bestIQ: 0, bestStreak: 0 };
+  
+  const savedName = getSavedUsername();
+  if(savedName){
+    // Pehle se naam saved hai → seedha load karo
+    await loadOrCreateProfile(savedName);
+  } else {
+    // Naya user → naam poochho
+    show('s-name');
   }
-  enterHome();
 })();
 </script>
 </body>
