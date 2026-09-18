@@ -80,6 +80,29 @@
   .banner.bad{border-color:var(--warn);box-shadow:0 0 22px rgba(255,92,122,.25)}
   .banner.bad .v{color:var(--warn)}
 
+  /* ⭐ Hint Box */
+  .hint-box{
+    background:linear-gradient(135deg, rgba(255,209,102,.12), rgba(255,159,28,.06));
+    border:1px solid var(--gold);
+    border-radius:12px;
+    padding:10px 14px;
+    margin-bottom:12px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    animation:fade .3s ease;
+  }
+  .hint-box .hint-icon{
+    font-size:20px;
+    flex-shrink:0;
+  }
+  .hint-box .hint-text{
+    font-size:13px;
+    font-weight:600;
+    color:var(--gold);
+    line-height:1.4;
+  }
+
   .timer{height:5px;background:#1b2140;border-radius:99px;overflow:hidden;margin-bottom:14px}
   .timer i{display:block;height:100%;width:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:99px;transition:width .06s linear}
   .timer.hide{visibility:hidden}
@@ -164,10 +187,6 @@
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
   .toast.err{background:linear-gradient(135deg,#ff5c7a,#ff2d55);color:#fff;box-shadow:0 12px 40px rgba(255,92,122,.4)}
 
-  .loading{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.3);
-    border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;margin-right:8px;vertical-align:middle}
-  @keyframes spin{to{transform:rotate(360deg)}}
-
   .special-end{text-align:center;padding:20px}
   .special-end .ico{font-size:80px;margin-bottom:16px;animation:float 2s ease-in-out infinite}
   .special-end h2{font-size:24px;font-weight:800;margin-bottom:10px;
@@ -214,6 +233,17 @@
       <span class="k" id="g-k">Get Ready</span>
       <span class="v" id="g-v">Dekho aur yaad karo…</span>
     </div>
+
+    <!-- Hint Box -->
+    <div class="hint-box" id="g-hint" style="display:none">
+      <span class="hint-icon">💡</span>
+      <span class="hint-text" id="g-hint-text">Hint yahan dikhega</span>
+    </div>
+
+    <!-- Reveal Button (3 galat ke baad) -->
+    <button class="btn ghost" id="btn-reveal" style="display:none;margin-bottom:12px">
+      👁 Show Correct Answer
+    </button>
 
     <div class="timer" id="g-timerWrap"><i id="g-timer"></i></div>
 
@@ -417,7 +447,7 @@ function enterHome(){
   $('h-lvl').textContent = p.bestLevel || 1;
   $('h-streak').textContent = p.bestStreak || 0;
   
-  // ⭐ Smart button — agar best level > 1 to "Continue" dikhao
+  // Smart button — agar best level > 1 to "Continue" dikhao
   const bestLvl = p.bestLevel || 1;
   const btn = $('btn-play');
   if(bestLvl > 1){
@@ -469,7 +499,9 @@ const G = {
   rounds:0, correct:0, playing:false, acceptInput:false,
   timerId:null, checking:false,
   finalIQ:0, finalAcc:0,
-  newlyUnlockedCert:null
+  newlyUnlockedCert:null,
+  wrongInLevel:0,
+  revealMode:false
 };
 
 const shuffle = a => { for(let i=a.length-1;i>0;i--){const j=(Math.random()*(i+1))|0;[a[i],a[j]]=[a[j],a[i]];} return a; };
@@ -496,12 +528,22 @@ const TRANSFORM_LABEL = {
   mirrorV: '🪞 Up–Down mirror karke banao'
 };
 
+// ⭐ Hindi hint notes
+const TRANSFORM_HINT_HINDI = {
+  none:    'Original pattern ko waise hi dobara banao. Koi change nahi karna.',
+  rot90:   'Original pattern ko 90° CLOCKWISE (right side) ghuma diya gaya hai.',
+  rot180:  'Original pattern ko 180° (aadha chakkar) ghuma diya gaya hai.',
+  mirrorH: 'Original pattern ko Left-Right (दाएँ-बाएँ) mirror kiya gaya hai.',
+  mirrorV: 'Original pattern ko Up-Down (ऊपर-नीचे) mirror kiya gaya hai.'
+};
+
+// ⭐ FIXED: rot90 is now CLOCKWISE
 function applyTransform(idx, n, type){
   if (type === 'none') return [...idx];
   return idx.map(i=>{
     const r = Math.floor(i/n), c = i % n;
     switch(type){
-      case 'rot90':   return (n-1-r)*n + c;
+      case 'rot90':   return c*n + (n-1-r);
       case 'rot180':  return (n-1-r)*n + (n-1-c);
       case 'mirrorH': return r*n + (n-1-c);
       case 'mirrorV': return (n-1-r)*n + c;
@@ -568,6 +610,8 @@ function startGame(){
   G.playing = true;
   G.checking = false;
   G.newlyUnlockedCert = null;
+  G.wrongInLevel = 0;
+  G.revealMode = false;
   updateHUD();
   show('s-game');
   startRound();
@@ -576,6 +620,7 @@ function startGame(){
 function startRound(){
   if(!G.playing) return;
   G.checking = false;
+  G.revealMode = false;
   const cfg = levelConfig(G.level);
   G.transform = cfg.transform;
   G.selected.clear();
@@ -584,6 +629,15 @@ function startRound(){
   clearCells();
   lockGrid(true);
   hideTimer();
+
+  // Show hint box
+  const hintBox = $('g-hint');
+  const hintText = $('g-hint-text');
+  hintText.textContent = TRANSFORM_HINT_HINDI[cfg.transform] || TRANSFORM_HINT_HINDI.none;
+  hintBox.style.display = 'flex';
+
+  // Hide reveal button (naya round)
+  $('btn-reveal').style.display = 'none';
 
   const all = shuffle([...Array(cfg.n*cfg.n).keys()]);
   G.pattern = all.slice(0, cfg.tiles);
@@ -666,7 +720,7 @@ function beginInput(cfg){
 }
 
 function onCellClick(i){
-  if(!G.acceptInput || G.checking) return;
+  if(!G.acceptInput || G.checking || G.revealMode) return;
   const c = cells()[i];
   if(G.selected.has(i)){
     G.selected.delete(i);
@@ -705,6 +759,7 @@ function checkAnswer(){
   G.rounds++;
 
   if(perfect){
+    // ✅ SAHI
     G.correct++;
     G.streak++;
     G.bestStreak = Math.max(G.bestStreak, G.streak);
@@ -713,6 +768,9 @@ function checkAnswer(){
     flash('g'); beep(920,120,'sine',.07);
     setBanner('✅ SAHI!', `+${gained} points • Streak ${G.streak}`, 'ok');
     updateHUD();
+
+    G.wrongInLevel = 0;
+    $('btn-reveal').style.display = 'none';
 
     const milestone = CERT_CONFIG.find(c => c.lvl === G.level);
     setTimeout(()=>{
@@ -727,17 +785,70 @@ function checkAnswer(){
       }
     }, 950);
   } else {
+    // ❌ GALAT
     G.streak = 0;
     G.lives--;
+    G.wrongInLevel = (G.wrongInLevel || 0) + 1;
     flash('r'); beep(160,220,'sawtooth',.06);
-    setBanner('❌ GALAT', `Sahi: ${total} tiles • Tumne: ${hit}`, 'bad');
+    
+    const remaining = 3 - G.wrongInLevel;
+    if(G.wrongInLevel < 3 && G.lives > 0){
+      setBanner('❌ GALAT', `Sahi: ${total} • Tumne: ${hit} • ${remaining} try baaki`, 'bad');
+    } else {
+      setBanner('❌ GALAT', `Sahi: ${total} tiles • Tumne: ${hit}`, 'bad');
+    }
     updateHUD();
+
+    // 3 wrong ke baad reveal button
+    if(G.wrongInLevel >= 3 && G.lives > 0){
+      $('btn-reveal').style.display = 'block';
+      setBanner('😓 3 BAAR GALAT', 'Reveal Answer button dabao', 'bad');
+    }
+
     setTimeout(()=>{
       if(G.lives <= 0) endGame(false);
       else startRound();
     }, 1500);
   }
 }
+
+/* =========================================================
+   REVEAL ANSWER
+   ========================================================= */
+$('btn-reveal').onclick = () => {
+  if(!G.playing || G.revealMode) return;
+  
+  G.revealMode = true;
+  G.acceptInput = false;
+  lockGrid(true);
+  
+  const expected = new Set(applyTransform(G.pattern, G.n, G.transform));
+  const cs = cells();
+  
+  // Clear all cells
+  cs.forEach(c => c.className = 'cell');
+  
+  // Show correct pattern in green
+  let i = 0;
+  expected.forEach(idx => {
+    setTimeout(() => {
+      cs[idx].classList.add('ok');
+      beep(700, 60, 'sine', .04);
+    }, i * 120);
+    i++;
+  });
+  
+  setBanner('👁 SAHI JAWAB', 'Ab dekh lo, phir wahi level dobara', 'ok');
+  $('btn-reveal').style.display = 'none';
+  
+  // 3 second baad wahi level restart
+  setTimeout(() => {
+    G.revealMode = false;
+    G.wrongInLevel = 0;
+    G.lives = Math.max(1, G.lives);
+    startRound();
+  }, 3000);
+};
 
 /* =========================================================
    MILESTONE
@@ -780,6 +891,8 @@ async function endGame(isFinal){
   stopTimer();
   hideTimer();
   $('g-math').classList.remove('show');
+  $('g-hint').style.display = 'none';
+  $('btn-reveal').style.display = 'none';
 
   const acc = G.rounds ? Math.round((G.correct / G.rounds) * 100) : 0;
   const reached = Math.max(1, G.level);
@@ -868,7 +981,7 @@ $('cert-name').addEventListener('input', e=>{
 });
 
 /* =========================================================
-   PREMIUM CERTIFICATE DRAWING
+   PREMIUM CERTIFICATE
    ========================================================= */
 function drawCertificate(name, cert){
   const cvs = $('cert-canvas');
@@ -878,7 +991,7 @@ function drawCertificate(name, cert){
   const accent = cert?.color || '#ffd700';
   const accentDark = cert?.accent || '#f59e0b';
   
-  // 1. BACKGROUND
+  // Background
   const bg = ctx.createLinearGradient(0, 0, W, H);
   bg.addColorStop(0, '#0a0e1f');
   bg.addColorStop(0.5, '#131936');
@@ -902,7 +1015,7 @@ function drawCertificate(name, cert){
   ctx.fillStyle = holo;
   ctx.fillRect(0, 0, W, H);
   
-  // 2. WATERMARK
+  // Watermark
   ctx.save();
   ctx.globalAlpha = 0.04;
   ctx.fillStyle = '#ffffff';
@@ -914,7 +1027,7 @@ function drawCertificate(name, cert){
   ctx.fillText('MINDMASTER', 0, 0);
   ctx.restore();
   
-  // 3. BORDERS
+  // Borders
   ctx.strokeStyle = accent;
   ctx.lineWidth = 10;
   ctx.strokeRect(30, 30, W - 60, H - 60);
@@ -927,7 +1040,7 @@ function drawCertificate(name, cert){
   ctx.lineWidth = 1;
   ctx.strokeRect(64, 64, W - 128, H - 128);
   
-  // 4. CORNER ORNAMENTS
+  // Corner ornaments
   const cornerLen = 100;
   ctx.strokeStyle = accent;
   ctx.lineWidth = 7;
@@ -951,10 +1064,10 @@ function drawCertificate(name, cert){
     ctx.stroke();
   });
   
-  // 5. LOGO
+  // Logo
   drawLogo(ctx, W/2, 140, accent, accentDark);
   
-  // 6. GAME NAME
+  // Game name
   ctx.textAlign = 'center';
   ctx.textBaseline = 'alphabetic';
   
@@ -980,7 +1093,6 @@ function drawCertificate(name, cert){
   ctx.moveTo(W/2 + 25, 318); ctx.lineTo(W/2 + 280, 318);
   ctx.stroke();
   
-  // Diamond
   ctx.beginPath();
   ctx.moveTo(W/2, 306);
   ctx.lineTo(W/2 + 12, 318);
@@ -990,7 +1102,7 @@ function drawCertificate(name, cert){
   ctx.fillStyle = accent;
   ctx.fill();
   
-  // 7. TITLE
+  // Title
   ctx.fillStyle = '#ffffff';
   ctx.font = 'bold 52px Outfit, sans-serif';
   ctx.fillText('CERTIFICATE', W/2, 410);
@@ -999,12 +1111,12 @@ function drawCertificate(name, cert){
   ctx.font = '600 22px Outfit, sans-serif';
   ctx.fillText('OF ACHIEVEMENT', W/2, 445);
   
-  // 8. AWARDED TO
+  // Awarded to
   ctx.fillStyle = '#8b95c9';
   ctx.font = '500 22px Outfit, sans-serif';
   ctx.fillText('This certificate is proudly presented to', W/2, 505);
   
-  // 9. PLAYER NAME
+  // Player name
   const playerGrad = ctx.createLinearGradient(W/2 - 500, 0, W/2 + 500, 0);
   playerGrad.addColorStop(0, accent);
   playerGrad.addColorStop(0.5, '#ffffff');
@@ -1020,7 +1132,7 @@ function drawCertificate(name, cert){
   ctx.moveTo(W/2 - 450, 640); ctx.lineTo(W/2 + 450, 640);
   ctx.stroke();
   
-  // 10. ACHIEVEMENT TEXT
+  // Achievement text
   ctx.fillStyle = '#c5ccef';
   ctx.font = '500 24px Outfit, sans-serif';
   ctx.fillText(`for reaching Level ${cert?.lvl || '—'} and earning the`, W/2, 690);
@@ -1050,7 +1162,7 @@ function drawCertificate(name, cert){
   ctx.font = 'bold 26px Outfit, sans-serif';
   ctx.fillText(badgeText, W/2, badgeY + 36);
   
-  // 11. STATS BOXES
+  // Stats boxes
   const stats = [
     { label: 'IQ SCORE', value: G.finalIQ, color: accent },
     { label: 'LEVEL', value: G.level, color: accentDark },
@@ -1085,7 +1197,7 @@ function drawCertificate(name, cert){
     ctx.fillText(s.label, x + boxW/2, boxY + 78);
   });
   
-  // 12. DATE
+  // Date
   const dateStr = new Date().toLocaleDateString('en-GB', {
     day: '2-digit', month: 'short', year: 'numeric'
   });
@@ -1099,10 +1211,10 @@ function drawCertificate(name, cert){
   ctx.font = 'bold 22px Outfit, sans-serif';
   ctx.fillText(dateStr, 130, H - 128);
   
-  // 13. SEAL
+  // Seal
   drawSeal(ctx, W - 210, H - 145, accent, accentDark);
   
-  // 14. ADMIN SIGNATURE
+  // Admin signature
   const sigX = 130;
   const sigY = H - 85;
   
@@ -1122,7 +1234,7 @@ function drawCertificate(name, cert){
   ctx.font = '600 13px Outfit, sans-serif';
   ctx.fillText('FOUNDER & CREATOR — ' + GAME_NAME, sigX + 5, sigY + 44);
   
-  // 15. CERT ID + AUTHENTIC TEXT
+  // Cert ID + authentic text
   const certId = 'MM-' + Date.now().toString(36).toUpperCase().slice(-8);
   
   ctx.fillStyle = accent + '55';
@@ -1300,7 +1412,7 @@ function drawArcText(ctx, text, cx, cy, radius, startAngle, fontSize, color){
 }
 
 /* =========================================================
-   ROUND RECT HELPER
+   ROUND RECT
    ========================================================= */
 function roundRect(ctx, x, y, w, h, r){
   ctx.beginPath();
@@ -1319,8 +1431,8 @@ function roundRect(ctx, x, y, w, h, r){
 /* =========================================================
    BUTTON HANDLERS
    ========================================================= */
-$('btn-play').onclick = startGame;   // ⭐ Always from best level (or Level 1 if new)
-$('btn-again').onclick = startGame;  // ⭐ Try Again bhi best level se
+$('btn-play').onclick = startGame;
+$('btn-again').onclick = startGame;
 
 $('btn-download').onclick = ()=>{
   const name = (($('cert-name').value.trim() || 'Brain_Master')).replace(/\s+/g,'_');
