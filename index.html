@@ -212,40 +212,8 @@
 <div class="app">
   <div class="flash" id="flash"></div>
 
-  <!-- AUTH -->
-  <section class="screen active" id="s-auth">
-    <div class="logo"><i></i><i></i><i></i></div>
-    <h1>NeuroGrid IQ</h1>
-    <p class="tag">Memory • Rotation • Logic<br>Ek game, poora brain workout.</p>
-
-    <div class="tabs">
-      <button class="active" id="tab-login">Login</button>
-      <button id="tab-register">Register</button>
-    </div>
-
-    <div class="field">
-      <label>Username</label>
-      <input type="text" id="au-user" placeholder="apna_username" maxlength="20" autocomplete="username" />
-    </div>
-    <div class="field">
-      <label>Password</label>
-      <input type="password" id="au-pass" placeholder="••••••••" autocomplete="current-password" />
-    </div>
-
-    <button class="btn" id="btn-auth">🔐 Login</button>
-    <div class="err" id="au-err"></div>
-    <p style="text-align:center;font-size:11.5px;color:var(--muted);margin-top:14px">
-      Data securely Firebase me save hota hai ☁️
-    </p>
-  </section>
-
   <!-- HOME -->
-  <section class="screen" id="s-home">
-    <div class="user-badge">
-      <div class="who">👤 <b id="h-user">player</b></div>
-      <button id="btn-logout">Logout</button>
-    </div>
-
+  <section class="screen active" id="s-home">
     <h1>NeuroGrid IQ</h1>
     <p class="tag">Ready for brain workout? 🧠</p>
 
@@ -420,12 +388,6 @@ async function fbPatch(path, data){
   return await r.json();
 }
 
-function hashPw(s){
-  let h = 5381;
-  for(let i=0;i<s.length;i++){ h = ((h<<5) + h) + s.charCodeAt(i); h |= 0; }
-  return 'h' + Math.abs(h).toString(36);
-}
-function userKey(name){ return name.toLowerCase().replace(/[.#$/\[\]]/g, '_'); }
 function show(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   $(id).classList.add('active');
@@ -471,111 +433,15 @@ async function loadCertConfig(){
 }
 
 /* =========================================================
-   STATE
+   STATE - Default guest user
    ========================================================= */
-let CURRENT_USER = null;
+let CURRENT_USER = { username: 'guest', key: 'guest' };
 let USER_DATA = { profile:{}, scores:{} };
-
-function saveSession(u){ sessionStorage.setItem('ng_user', u); }
-function clearSession(){ sessionStorage.removeItem('ng_user'); }
-function getSession(){ return sessionStorage.getItem('ng_user'); }
-
-/* =========================================================
-   AUTH
-   ========================================================= */
-let authMode = 'login';
-$('tab-login').onclick = () => {
-  authMode = 'login';
-  $('tab-login').classList.add('active');
-  $('tab-register').classList.remove('active');
-  $('btn-auth').textContent = '🔐 Login';
-  $('au-err').textContent = '';
-};
-$('tab-register').onclick = () => {
-  authMode = 'register';
-  $('tab-register').classList.add('active');
-  $('tab-login').classList.remove('active');
-  $('btn-auth').textContent = '✨ Create Account';
-  $('au-err').textContent = '';
-};
-
-$('btn-auth').onclick = doAuth;
-$('au-pass').addEventListener('keypress', e=>{ if(e.key==='Enter') doAuth(); });
-
-async function doAuth(){
-  const username = $('au-user').value.trim();
-  const password = $('au-pass').value;
-  const err = $('au-err');
-  err.textContent = '';
-
-  if(username.toLowerCase() === 'admin'){
-    err.textContent = '❌ Ye username reserved hai';
-    return;
-  }
-  if(username.length < 3){ err.textContent = '❌ Username min 3 characters'; return; }
-  if(!/^[a-zA-Z0-9_]+$/.test(username)){ err.textContent = '❌ Sirf letters, numbers, _ allowed'; return; }
-  if(password.length < 4){ err.textContent = '❌ Password min 4 characters'; return; }
-
-  const btn = $('btn-auth');
-  const orig = btn.textContent;
-  btn.disabled = true;
-  btn.innerHTML = '<span class="loading"></span> Please wait...';
-
-  try{
-    const key = userKey(username);
-    const existing = await fbGet(`/users/${key}/profile`);
-
-    if(authMode === 'register'){
-      if(existing){ err.textContent = '❌ Ye username registered hai'; reset(); return; }
-      const profile = {
-        username,
-        password: hashPw(password),
-        createdAt: Date.now(),
-        bestScore: 0, bestLevel: 1, bestIQ: 0, bestStreak: 0
-      };
-      await fbPut(`/users/${key}/profile`, profile);
-      await fbPut(`/users/${key}/scores`, { _init: true });
-      toast('✅ Account ban gaya! Welcome ' + username);
-      beep(880, 140);
-      await loginPlayer(username, key, profile);
-    } else {
-      if(!existing){ err.textContent = '❌ Username nahi mila'; reset(); return; }
-      if(existing.password !== hashPw(password)){ err.textContent = '❌ Galat password'; reset(); return; }
-      toast('✅ Welcome back, ' + username);
-      beep(880, 140);
-      await loginPlayer(username, key, existing);
-    }
-  } catch(e){
-    console.error(e);
-    err.textContent = '❌ Connection failed. Internet check karo.';
-    reset();
-  }
-
-  function reset(){ btn.disabled = false; btn.textContent = orig; }
-}
-
-async function loginPlayer(username, key, profile){
-  CURRENT_USER = { username, key };
-  USER_DATA.profile = profile;
-  saveSession(username);
-
-  await loadCertConfig();
-  const scores = await fbGet(`/users/${key}/scores`);
-  USER_DATA.scores = scores || {};
-  delete USER_DATA.scores._init;
-
-  $('au-user').value = '';
-  $('au-pass').value = '';
-  $('btn-auth').disabled = false;
-  $('btn-auth').textContent = authMode === 'login' ? '🔐 Login' : '✨ Create Account';
-  enterHome();
-}
 
 /* =========================================================
    HOME
    ========================================================= */
 function enterHome(){
-  $('h-user').textContent = CURRENT_USER.username;
   const p = USER_DATA.profile || {};
   $('h-best').textContent = p.bestScore || 0;
   $('h-lvl').textContent = p.bestLevel || 1;
@@ -611,13 +477,6 @@ function renderCertGrid(){
   });
   $('cert-count').textContent = `${unlockedCount} / ${CERT_CONFIG.length}`;
 }
-
-$('btn-logout').onclick = () => {
-  clearSession();
-  CURRENT_USER = null;
-  USER_DATA = { profile:{}, scores:{} };
-  show('s-auth');
-};
 
 $('btn-play').onclick = startGame;
 
@@ -976,6 +835,7 @@ async function endGame(isFinal){
     $('btn-cert').style.display = 'none';
   }
 
+  // Save to Firebase for guest user
   try{
     const scoreRec = {
       score: G.score, level: reached, iq, accuracy: acc,
@@ -1190,28 +1050,33 @@ $('btn-final-cert').onclick = ()=>{
 $('btn-final-home').onclick = ()=>{ enterHome(); };
 
 /* =========================================================
-   INIT
+   INIT - Load guest data from Firebase
    ========================================================= */
 (async function init(){
-  const u = getSession();
-  if(u){
-    try{
-      const key = userKey(u);
-      const profile = await fbGet(`/users/${key}/profile`);
-      if(profile){
-        await loadCertConfig();
-        CURRENT_USER = { username: u, key };
-        USER_DATA.profile = profile;
-        const scores = await fbGet(`/users/${key}/scores`) || {};
-        USER_DATA.scores = scores;
-        delete USER_DATA.scores._init;
-        enterHome();
-        return;
-      }
-    }catch(e){ console.warn(e); }
-  }
   await loadCertConfig();
-  show('s-auth');
+  try{
+    const profile = await fbGet(`/users/guest/profile`);
+    if(profile){
+      USER_DATA.profile = profile;
+      const scores = await fbGet(`/users/guest/scores`) || {};
+      USER_DATA.scores = scores;
+      delete USER_DATA.scores._init;
+    } else {
+      // Create guest profile on first run
+      const defaultProfile = {
+        username: 'guest',
+        createdAt: Date.now(),
+        bestScore: 0, bestLevel: 1, bestIQ: 0, bestStreak: 0
+      };
+      await fbPut(`/users/guest/profile`, defaultProfile);
+      USER_DATA.profile = defaultProfile;
+      await fbPut(`/users/guest/scores`, { _init: true });
+    }
+  }catch(e){
+    console.warn('Could not load guest data from Firebase', e);
+    USER_DATA.profile = { username: 'guest', bestScore: 0, bestLevel: 1, bestIQ: 0, bestStreak: 0 };
+  }
+  enterHome();
 })();
 </script>
 </body>
