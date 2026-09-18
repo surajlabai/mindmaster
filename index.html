@@ -240,7 +240,7 @@
       <span class="hint-text" id="g-hint-text">Hint yahan dikhega</span>
     </div>
 
-    <!-- Reveal Button (3 galat ke baad) -->
+    <!-- Reveal Button -->
     <button class="btn ghost" id="btn-reveal" style="display:none;margin-bottom:12px">
       👁 Show Correct Answer
     </button>
@@ -433,9 +433,19 @@ async function loadCertConfig(){
 }
 
 /* =========================================================
-   STATE - Guest
+   ⭐ UNIQUE USER ID (localStorage based)
    ========================================================= */
-let CURRENT_USER = { username: 'guest', key: 'guest' };
+function getOrCreateUserId(){
+  let uid = localStorage.getItem('mm_user_id');
+  if(!uid){
+    uid = 'user_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 10);
+    localStorage.setItem('mm_user_id', uid);
+  }
+  return uid;
+}
+
+const USER_ID = getOrCreateUserId();
+let CURRENT_USER = { username: USER_ID, key: USER_ID };
 let USER_DATA = { profile:{}, scores:{} };
 
 /* =========================================================
@@ -447,7 +457,6 @@ function enterHome(){
   $('h-lvl').textContent = p.bestLevel || 1;
   $('h-streak').textContent = p.bestStreak || 0;
   
-  // Smart button — agar best level > 1 to "Continue" dikhao
   const bestLvl = p.bestLevel || 1;
   const btn = $('btn-play');
   if(bestLvl > 1){
@@ -507,11 +516,15 @@ const G = {
 const shuffle = a => { for(let i=a.length-1;i>0;i--){const j=(Math.random()*(i+1))|0;[a[i],a[j]]=[a[j],a[i]];} return a; };
 const rnd = (a,b) => a + Math.floor(Math.random()*(b-a+1));
 
+/* ⭐ TIMER INCREASED — ab zyada time milega */
 function levelConfig(level){
   const n        = level <= 3 ? 3 : level <= 6 ? 4 : level <= 10 ? 5 : 6;
   const maxTiles = n*n - 2;
   const tiles    = Math.min(maxTiles, 3 + Math.floor(level * 0.9));
-  const showMs   = Math.max(1100, 3400 - level * 170);
+  
+  // ⭐ Timer: Base 6500ms (6.5s) se start, har level 100ms kam, min 3000ms (3s)
+  const showMs   = Math.max(3000, 6500 - level * 100);
+  
   const mathOn   = level >= 3;
   let transform  = 'none';
   if (level >= 4) transform = 'rot90';
@@ -528,7 +541,6 @@ const TRANSFORM_LABEL = {
   mirrorV: '🪞 Up–Down mirror karke banao'
 };
 
-// ⭐ Hindi hint notes
 const TRANSFORM_HINT_HINDI = {
   none:    'Original pattern ko waise hi dobara banao. Koi change nahi karna.',
   rot90:   'Original pattern ko 90° CLOCKWISE (right side) ghuma diya gaya hai.',
@@ -537,7 +549,7 @@ const TRANSFORM_HINT_HINDI = {
   mirrorV: 'Original pattern ko Up-Down (ऊपर-नीचे) mirror kiya gaya hai.'
 };
 
-// ⭐ FIXED: rot90 is now CLOCKWISE
+// FIXED: rot90 is now CLOCKWISE
 function applyTransform(idx, n, type){
   if (type === 'none') return [...idx];
   return idx.map(i=>{
@@ -630,13 +642,11 @@ function startRound(){
   lockGrid(true);
   hideTimer();
 
-  // Show hint box
   const hintBox = $('g-hint');
   const hintText = $('g-hint-text');
   hintText.textContent = TRANSFORM_HINT_HINDI[cfg.transform] || TRANSFORM_HINT_HINDI.none;
   hintBox.style.display = 'flex';
 
-  // Hide reveal button (naya round)
   $('btn-reveal').style.display = 'none';
 
   const all = shuffle([...Array(cfg.n*cfg.n).keys()]);
@@ -652,7 +662,9 @@ function startRound(){
 }
 
 function showPattern(cfg){
-  setBanner('YAAD KARO', `${cfg.tiles} tiles • ${(cfg.showMs/1000).toFixed(1)}s`);
+  // ⭐ Time display me seconds dikhao
+  const secs = (cfg.showMs/1000).toFixed(1);
+  setBanner('YAAD KARO', `${cfg.tiles} tiles • ${secs}s time`);
   const cs = cells();
   cs.forEach(c=>c.classList.remove('on','sel','ok','bad','miss'));
 
@@ -759,7 +771,6 @@ function checkAnswer(){
   G.rounds++;
 
   if(perfect){
-    // ✅ SAHI
     G.correct++;
     G.streak++;
     G.bestStreak = Math.max(G.bestStreak, G.streak);
@@ -785,7 +796,6 @@ function checkAnswer(){
       }
     }, 950);
   } else {
-    // ❌ GALAT
     G.streak = 0;
     G.lives--;
     G.wrongInLevel = (G.wrongInLevel || 0) + 1;
@@ -799,7 +809,6 @@ function checkAnswer(){
     }
     updateHUD();
 
-    // 3 wrong ke baad reveal button
     if(G.wrongInLevel >= 3 && G.lives > 0){
       $('btn-reveal').style.display = 'block';
       setBanner('😓 3 BAAR GALAT', 'Reveal Answer button dabao', 'bad');
@@ -825,10 +834,8 @@ $('btn-reveal').onclick = () => {
   const expected = new Set(applyTransform(G.pattern, G.n, G.transform));
   const cs = cells();
   
-  // Clear all cells
   cs.forEach(c => c.className = 'cell');
   
-  // Show correct pattern in green
   let i = 0;
   expected.forEach(idx => {
     setTimeout(() => {
@@ -841,13 +848,12 @@ $('btn-reveal').onclick = () => {
   setBanner('👁 SAHI JAWAB', 'Ab dekh lo, phir wahi level dobara', 'ok');
   $('btn-reveal').style.display = 'none';
   
-  // 3 second baad wahi level restart
   setTimeout(() => {
     G.revealMode = false;
     G.wrongInLevel = 0;
     G.lives = Math.max(1, G.lives);
     startRound();
-  }, 3000);
+  }, 3500);
 };
 
 /* =========================================================
@@ -972,8 +978,9 @@ function openCertificate(cert){
   certData = cert;
   $('cert-subtitle').textContent = `${cert.icon} ${cert.name} — Level ${cert.lvl} Milestone`;
   const savedName = USER_DATA.profile?.username || 'Brain Master';
-  $('cert-name').value = savedName === 'guest' ? '' : savedName;
-  drawCertificate(savedName === 'guest' ? 'Brain Master' : savedName, cert);
+  const isAutoName = savedName.startsWith('Player_') || savedName === 'guest';
+  $('cert-name').value = isAutoName ? '' : savedName;
+  drawCertificate(isAutoName ? 'Brain Master' : savedName, cert);
   show('s-cert');
 }
 $('cert-name').addEventListener('input', e=>{
@@ -991,7 +998,6 @@ function drawCertificate(name, cert){
   const accent = cert?.color || '#ffd700';
   const accentDark = cert?.accent || '#f59e0b';
   
-  // Background
   const bg = ctx.createLinearGradient(0, 0, W, H);
   bg.addColorStop(0, '#0a0e1f');
   bg.addColorStop(0.5, '#131936');
@@ -1006,7 +1012,6 @@ function drawCertificate(name, cert){
   ctx.fillStyle = rg;
   ctx.fillRect(0, 0, W, H);
   
-  // Holographic foil
   const holo = ctx.createLinearGradient(0, 0, W, H);
   holo.addColorStop(0, 'rgba(255,0,150,0.04)');
   holo.addColorStop(0.3, 'rgba(0,255,200,0.04)');
@@ -1015,7 +1020,6 @@ function drawCertificate(name, cert){
   ctx.fillStyle = holo;
   ctx.fillRect(0, 0, W, H);
   
-  // Watermark
   ctx.save();
   ctx.globalAlpha = 0.04;
   ctx.fillStyle = '#ffffff';
@@ -1027,7 +1031,6 @@ function drawCertificate(name, cert){
   ctx.fillText('MINDMASTER', 0, 0);
   ctx.restore();
   
-  // Borders
   ctx.strokeStyle = accent;
   ctx.lineWidth = 10;
   ctx.strokeRect(30, 30, W - 60, H - 60);
@@ -1040,7 +1043,6 @@ function drawCertificate(name, cert){
   ctx.lineWidth = 1;
   ctx.strokeRect(64, 64, W - 128, H - 128);
   
-  // Corner ornaments
   const cornerLen = 100;
   ctx.strokeStyle = accent;
   ctx.lineWidth = 7;
@@ -1064,10 +1066,8 @@ function drawCertificate(name, cert){
     ctx.stroke();
   });
   
-  // Logo
   drawLogo(ctx, W/2, 140, accent, accentDark);
   
-  // Game name
   ctx.textAlign = 'center';
   ctx.textBaseline = 'alphabetic';
   
@@ -1083,7 +1083,6 @@ function drawCertificate(name, cert){
   ctx.font = '600 18px Outfit, sans-serif';
   ctx.fillText('B R A I N   T R A I N I N G   A C A D E M Y', W/2, 288);
   
-  // Divider
   ctx.strokeStyle = accent + '88';
   ctx.lineWidth = 2;
   ctx.beginPath();
@@ -1102,7 +1101,6 @@ function drawCertificate(name, cert){
   ctx.fillStyle = accent;
   ctx.fill();
   
-  // Title
   ctx.fillStyle = '#ffffff';
   ctx.font = 'bold 52px Outfit, sans-serif';
   ctx.fillText('CERTIFICATE', W/2, 410);
@@ -1111,12 +1109,10 @@ function drawCertificate(name, cert){
   ctx.font = '600 22px Outfit, sans-serif';
   ctx.fillText('OF ACHIEVEMENT', W/2, 445);
   
-  // Awarded to
   ctx.fillStyle = '#8b95c9';
   ctx.font = '500 22px Outfit, sans-serif';
   ctx.fillText('This certificate is proudly presented to', W/2, 505);
   
-  // Player name
   const playerGrad = ctx.createLinearGradient(W/2 - 500, 0, W/2 + 500, 0);
   playerGrad.addColorStop(0, accent);
   playerGrad.addColorStop(0.5, '#ffffff');
@@ -1125,19 +1121,16 @@ function drawCertificate(name, cert){
   ctx.font = 'bold 88px Outfit, sans-serif';
   ctx.fillText(name, W/2, 610);
   
-  // Underline
   ctx.strokeStyle = accent + '77';
   ctx.lineWidth = 3;
   ctx.beginPath();
   ctx.moveTo(W/2 - 450, 640); ctx.lineTo(W/2 + 450, 640);
   ctx.stroke();
   
-  // Achievement text
   ctx.fillStyle = '#c5ccef';
   ctx.font = '500 24px Outfit, sans-serif';
   ctx.fillText(`for reaching Level ${cert?.lvl || '—'} and earning the`, W/2, 690);
   
-  // Badge
   const badgeText = (cert?.name || 'MASTER').toUpperCase() + ' RANK';
   ctx.font = 'bold 28px Outfit, sans-serif';
   const badgeWidth = ctx.measureText(badgeText).width + 80;
@@ -1162,7 +1155,6 @@ function drawCertificate(name, cert){
   ctx.font = 'bold 26px Outfit, sans-serif';
   ctx.fillText(badgeText, W/2, badgeY + 36);
   
-  // Stats boxes
   const stats = [
     { label: 'IQ SCORE', value: G.finalIQ, color: accent },
     { label: 'LEVEL', value: G.level, color: accentDark },
@@ -1197,7 +1189,6 @@ function drawCertificate(name, cert){
     ctx.fillText(s.label, x + boxW/2, boxY + 78);
   });
   
-  // Date
   const dateStr = new Date().toLocaleDateString('en-GB', {
     day: '2-digit', month: 'short', year: 'numeric'
   });
@@ -1211,10 +1202,8 @@ function drawCertificate(name, cert){
   ctx.font = 'bold 22px Outfit, sans-serif';
   ctx.fillText(dateStr, 130, H - 128);
   
-  // Seal
   drawSeal(ctx, W - 210, H - 145, accent, accentDark);
   
-  // Admin signature
   const sigX = 130;
   const sigY = H - 85;
   
@@ -1234,7 +1223,6 @@ function drawCertificate(name, cert){
   ctx.font = '600 13px Outfit, sans-serif';
   ctx.fillText('FOUNDER & CREATOR — ' + GAME_NAME, sigX + 5, sigY + 44);
   
-  // Cert ID + authentic text
   const certId = 'MM-' + Date.now().toString(36).toUpperCase().slice(-8);
   
   ctx.fillStyle = accent + '55';
@@ -1382,7 +1370,7 @@ function drawSeal(ctx, cx, cy, accent, accentDark){
 }
 
 /* =========================================================
-   ARC TEXT HELPER
+   ARC TEXT
    ========================================================= */
 function drawArcText(ctx, text, cx, cy, radius, startAngle, fontSize, color){
   ctx.save();
@@ -1463,25 +1451,25 @@ $('btn-final-home').onclick = ()=>{ enterHome(); };
 (async function init(){
   await loadCertConfig();
   try{
-    const profile = await fbGet(`/users/guest/profile`);
+    const profile = await fbGet(`/users/${USER_ID}/profile`);
     if(profile){
       USER_DATA.profile = profile;
-      const scores = await fbGet(`/users/guest/scores`) || {};
+      const scores = await fbGet(`/users/${USER_ID}/scores`) || {};
       USER_DATA.scores = scores;
       delete USER_DATA.scores._init;
     } else {
       const defaultProfile = {
-        username: 'guest',
+        username: 'Player_' + USER_ID.slice(-6),
         createdAt: Date.now(),
         bestScore: 0, bestLevel: 1, bestIQ: 0, bestStreak: 0
       };
-      await fbPut(`/users/guest/profile`, defaultProfile);
+      await fbPut(`/users/${USER_ID}/profile`, defaultProfile);
       USER_DATA.profile = defaultProfile;
-      await fbPut(`/users/guest/scores`, { _init: true });
+      await fbPut(`/users/${USER_ID}/scores`, { _init: true });
     }
   }catch(e){
-    console.warn('Could not load guest data from Firebase', e);
-    USER_DATA.profile = { username: 'guest', bestScore: 0, bestLevel: 1, bestIQ: 0, bestStreak: 0 };
+    console.warn('Could not load user data from Firebase', e);
+    USER_DATA.profile = { username: 'Guest', bestScore: 0, bestLevel: 1, bestIQ: 0, bestStreak: 0 };
   }
   enterHome();
 })();
