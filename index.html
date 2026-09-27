@@ -95,20 +95,6 @@
   .banner.bad{border-color:var(--warn);box-shadow:0 0 22px rgba(255,92,122,.25)}
   .banner.bad .v{color:var(--warn)}
 
-  .hint-box{
-    background:linear-gradient(135deg, rgba(255,209,102,.12), rgba(255,159,28,.06));
-    border:1px solid var(--gold);
-    border-radius:12px;
-    padding:10px 14px;
-    margin-bottom:12px;
-    display:flex;
-    align-items:center;
-    gap:10px;
-    animation:fade .3s ease;
-  }
-  .hint-box .hint-icon{font-size:20px;flex-shrink:0}
-  .hint-box .hint-text{font-size:13px;font-weight:600;color:var(--gold);line-height:1.4}
-
   .timer{height:5px;background:#1b2140;border-radius:99px;overflow:hidden;margin-bottom:14px}
   .timer i{display:block;height:100%;width:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:99px;transition:width .06s linear}
   .timer.hide{visibility:hidden}
@@ -218,14 +204,14 @@
 <div class="app">
   <div class="flash" id="flash"></div>
 
-  <!-- ⭐ NAME ENTRY SCREEN -->
+  <!-- ⭐ NAME + PASSWORD SCREEN -->
   <section class="screen active" id="s-name">
     <div class="logo"><i></i><i></i><i></i></div>
     <h1>MindMaster IQ</h1>
-    <p class="tag">Apna naam likho taaki aapki progress save ho jaye 🧠</p>
+    <p class="tag">Unique username (jaise Instagram) + password daalo 🔐</p>
 
     <div class="field">
-      <label>Apna Naam / Username</label>
+      <label>Unique Username</label>
       <input 
         type="text" 
         id="name-input" 
@@ -235,12 +221,23 @@
       />
     </div>
 
+    <div class="field">
+      <label>Password</label>
+      <input 
+        type="password" 
+        id="pass-input" 
+        placeholder="min 4 characters" 
+        maxlength="30" 
+        autocomplete="off"
+      />
+    </div>
+
     <button class="btn" id="btn-name-continue">▶ Continue</button>
     <div class="err" id="name-err" style="color:var(--warn);font-size:12.5px;text-align:center;margin-top:8px;min-height:16px"></div>
 
     <p style="text-align:center;font-size:11.5px;color:var(--muted);margin-top:16px;line-height:1.5">
-      💡 Ye naam yaad rakho — isse aapki progress hamesha save rahegi.<br>
-      Kisi bhi phone/laptop pe same naam daalo → wahi progress milegi!
+      💡 Username unique hai — agar koi le chuka hai toh wahi password daalo.<br>
+      Naye user ho? Naya username choose karo.
     </p>
   </section>
 
@@ -248,7 +245,7 @@
   <section class="screen" id="s-home">
     <div class="user-badge">
       <div class="who">👤 <b id="h-user">player</b></div>
-      <button id="btn-change-user">Change</button>
+      <button id="btn-change-user">Logout</button>
     </div>
 
     <h1>MindMaster IQ</h1>
@@ -282,11 +279,6 @@
     <div class="banner" id="g-banner">
       <span class="k" id="g-k">Get Ready</span>
       <span class="v" id="g-v">Dekho aur yaad karo…</span>
-    </div>
-
-    <div class="hint-box" id="g-hint" style="display:none">
-      <span class="hint-icon">💡</span>
-      <span class="hint-text" id="g-hint-text">Hint yahan dikhega</span>
     </div>
 
     <button class="btn ghost" id="btn-reveal" style="display:none;margin-bottom:12px">
@@ -389,18 +381,19 @@
 const FB_URL = 'https://mindmaster-31158-default-rtdb.firebaseio.com';
 const ADMIN_NAME = '@surajprocreater';
 const GAME_NAME = 'MINDMASTER';
+const WATERMARK_TEXT = '@surajprocreater';
 
 const DEFAULT_CERTS = [
-  { lvl: 20,  name: 'Platinum',       color: '#e5e4e2', accent: '#9ca3af', icon: '🥈', bg1:'#1a1f3a', bg2:'#2d3254', desc: 'Pehla certificate unlock!' },
-  { lvl: 50,  name: 'Silver',         color: '#c0c0c0', accent: '#6b7280', icon: '🥈', bg1:'#1a1f3a', bg2:'#2d3254', desc: 'Solid progress!' },
-  { lvl: 100, name: 'Gold',           color: '#ffd700', accent: '#f59e0b', icon: '🥇', bg1:'#2a1f0a', bg2:'#3d2e10', desc: 'Triple digits!' },
-  { lvl: 200, name: 'Master',         color: '#a78bfa', accent: '#7c3aed', icon: '👑', bg1:'#1e1a3a', bg2:'#332a5c', desc: 'Master achieved!' },
-  { lvl: 250, name: 'Elite Master',   color: '#f472b6', accent: '#ec4899', icon: '💎', bg1:'#2a1a30', bg2:'#3d2644', desc: 'Elite tier!' },
-  { lvl: 300, name: 'Grandmaster',    color: '#fb923c', accent: '#ea580c', icon: '🔥', bg1:'#2a1a0a', bg2:'#3d2610', desc: 'Grandmaster!' },
-  { lvl: 350, name: 'Elite Master',   color: '#38bdf8', accent: '#0ea5e9', icon: '⚡', bg1:'#0a1e2a', bg2:'#102d3d', desc: 'Elite speed!' },
-  { lvl: 400, name: 'Grandmaster 1',  color: '#10b981', accent: '#059669', icon: '🌟', bg1:'#0a2a1e', bg2:'#0f3d2d', desc: 'GM Level 1!' },
-  { lvl: 450, name: 'Grandmaster 2',  color: '#8b5cf6', accent: '#7c3aed', icon: '💫', bg1:'#1e1a3a', bg2:'#2d2454', desc: 'GM Level 2!' },
-  { lvl: 500, name: 'Grandmaster 3',  color: '#ef4444', accent: '#dc2626', icon: '🏆', bg1:'#2a0a0a', bg2:'#3d1010', desc: 'TRUE LEGEND!' },
+  { lvl: 20,  name: 'Platinum',       color: '#e5e4e2', accent: '#9ca3af', icon: '🥈', desc: 'Pehla certificate unlock!' },
+  { lvl: 50,  name: 'Silver',         color: '#c0c0c0', accent: '#6b7280', icon: '🥈', desc: 'Solid progress!' },
+  { lvl: 100, name: 'Gold',           color: '#ffd700', accent: '#f59e0b', icon: '🥇', desc: 'Triple digits!' },
+  { lvl: 200, name: 'Master',         color: '#a78bfa', accent: '#7c3aed', icon: '👑', desc: 'Master achieved!' },
+  { lvl: 250, name: 'Elite Master',   color: '#f472b6', accent: '#ec4899', icon: '💎', desc: 'Elite tier!' },
+  { lvl: 300, name: 'Grandmaster',    color: '#fb923c', accent: '#ea580c', icon: '🔥', desc: 'Grandmaster!' },
+  { lvl: 350, name: 'Elite Master',   color: '#38bdf8', accent: '#0ea5e9', icon: '⚡', desc: 'Elite speed!' },
+  { lvl: 400, name: 'Grandmaster 1',  color: '#10b981', accent: '#059669', icon: '🌟', desc: 'GM Level 1!' },
+  { lvl: 450, name: 'Grandmaster 2',  color: '#8b5cf6', accent: '#7c3aed', icon: '💫', desc: 'GM Level 2!' },
+  { lvl: 500, name: 'Grandmaster 3',  color: '#ef4444', accent: '#dc2626', icon: '🏆', desc: 'TRUE LEGEND!' },
 ];
 
 let CERT_CONFIG = [...DEFAULT_CERTS];
@@ -481,12 +474,11 @@ async function loadCertConfig(){
 }
 
 /* =========================================================
-   STATE — Name Based Profile
+   STATE — Name + Password Based Profile
    ========================================================= */
 let CURRENT_USER = null;
 let USER_DATA = { profile:{}, scores:{} };
 
-// ⭐ localStorage helpers
 function saveUsername(name){
   try{ localStorage.setItem('mm_username', name); }catch(e){}
 }
@@ -497,46 +489,66 @@ function clearUsername(){
   try{ localStorage.removeItem('mm_username'); }catch(e){}
 }
 
-// ⭐ Username ko Firebase key me convert karo
 function usernameToKey(name){
   return name.toLowerCase().trim().replace(/[.#$/\[\]]/g, '_');
 }
 
 /* =========================================================
-   LOAD OR CREATE PROFILE
+   LOAD OR CREATE PROFILE (Unique username + password)
    ========================================================= */
-async function loadOrCreateProfile(name){
+async function loadOrCreateProfile(name, password){
   const key = usernameToKey(name);
-  CURRENT_USER = { username: name, key };
-  saveUsername(name);
-  
+
+  let profile;
   try{
-    const profile = await fbGet(`/users/${key}/profile`);
-    if(profile){
-      // Existing user — data load
-      USER_DATA.profile = profile;
+    profile = await fbGet(`/users/${key}/profile`);
+  }catch(e){
+    return { error: 'Network error. Internet check karo.' };
+  }
+
+  if(profile){
+    // Username already exists
+    if(!profile.password){
+      // Purana account bina password — set kar do
+      try{ await fbPatch(`/users/${key}/profile`, { password }); }catch(e){}
+      profile.password = password;
+    } else if(profile.password !== password){
+      return { error: 'Ye username already exist karta hai — password galat hai.' };
+    }
+
+    CURRENT_USER = { username: name, key };
+    USER_DATA.profile = profile;
+    try{
       const scores = await fbGet(`/users/${key}/scores`) || {};
+      delete scores._init;
       USER_DATA.scores = scores;
-      delete USER_DATA.scores._init;
-      toast('✅ Welcome back, ' + name + '!');
-    } else {
-      // Naya user — fresh profile
-      const newProfile = {
-        username: name,
-        createdAt: Date.now(),
-        bestScore: 0, bestLevel: 1, bestIQ: 0, bestStreak: 0
-      };
+    }catch(e){ USER_DATA.scores = {}; }
+    saveUsername(name);
+    toast('✅ Welcome back, ' + name + '!');
+    enterHome();
+    return { ok: true };
+  } else {
+    // Brand new user
+    const newProfile = {
+      username: name,
+      password: password,
+      createdAt: Date.now(),
+      bestScore: 0, bestLevel: 1, bestIQ: 0, bestStreak: 0
+    };
+    try{
       await fbPut(`/users/${key}/profile`, newProfile);
       await fbPut(`/users/${key}/scores`, { _init: true });
-      USER_DATA.profile = newProfile;
-      USER_DATA.scores = {};
-      toast('🎉 Welcome, ' + name + '!');
+    }catch(e){
+      return { error: 'Account create nahi hua. Try again.' };
     }
-  }catch(e){
-    console.error('Load failed', e);
-    USER_DATA.profile = { username: name, bestScore: 0, bestLevel: 1, bestIQ: 0, bestStreak: 0 };
+    CURRENT_USER = { username: name, key };
+    USER_DATA.profile = newProfile;
+    USER_DATA.scores = {};
+    saveUsername(name);
+    toast('🎉 Welcome, ' + name + '!');
+    enterHome();
+    return { ok: true };
   }
-  enterHome();
 }
 
 /* =========================================================
@@ -548,7 +560,7 @@ function enterHome(){
   $('h-best').textContent = p.bestScore || 0;
   $('h-lvl').textContent = p.bestLevel || 1;
   $('h-streak').textContent = p.bestStreak || 0;
-  
+
   const bestLvl = p.bestLevel || 1;
   const btn = $('btn-play');
   if(bestLvl > 1){
@@ -558,7 +570,7 @@ function enterHome(){
     btn.innerHTML = `▶ Start Brain Test`;
     btn.classList.remove('gold');
   }
-  
+
   renderCertGrid();
   show('s-home');
 }
@@ -592,11 +604,11 @@ function renderCertGrid(){
 }
 
 /* =========================================================
-   GAME ENGINE
+   GAME ENGINE (NO transforms — sirf yaad karna)
    ========================================================= */
 const G = {
   level:1, score:0, lives:3, streak:0, bestStreak:0,
-  n:3, pattern:[], selected:new Set(), transform:'none',
+  n:3, pattern:[], selected:new Set(),
   rounds:0, correct:0, playing:false, acceptInput:false,
   timerId:null, checking:false,
   finalIQ:0, finalAcc:0,
@@ -608,48 +620,13 @@ const G = {
 const shuffle = a => { for(let i=a.length-1;i>0;i--){const j=(Math.random()*(i+1))|0;[a[i],a[j]]=[a[j],a[i]];} return a; };
 const rnd = (a,b) => a + Math.floor(Math.random()*(b-a+1));
 
-// ⭐ Timer badhaya
 function levelConfig(level){
-  const n        = level <= 3 ? 3 : level <= 6 ? 4 : level <= 10 ? 5 : 6;
+  const n = level <= 3 ? 3 : level <= 6 ? 4 : level <= 10 ? 5 : 6;
   const maxTiles = n*n - 2;
-  const tiles    = Math.min(maxTiles, 3 + Math.floor(level * 0.9));
-  const showMs   = Math.max(3000, 6500 - level * 100);
-  const mathOn   = level >= 3;
-  let transform  = 'none';
-  if (level >= 4) transform = 'rot90';
-  if (level >= 7) transform = Math.random() < .45 ? 'mirrorH' : 'rot90';
-  if (level >= 11) transform = ['rot90','mirrorH','mirrorV','rot180'][rnd(0,3)];
-  return { n, tiles, showMs, mathOn, transform };
-}
-
-const TRANSFORM_LABEL = {
-  none:    'Waisa hi banao jaisa dikha tha',
-  rot90:   '🌀 Pattern ko 90° CLOCKWISE ghuma ke banao',
-  rot180:  '🌀 Pattern ko 180° ghuma ke banao',
-  mirrorH: '🪞 Left–Right mirror karke banao',
-  mirrorV: '🪞 Up–Down mirror karke banao'
-};
-
-const TRANSFORM_HINT_HINDI = {
-  none:    'Original pattern ko waise hi dobara banao. Koi change nahi karna.',
-  rot90:   'Original pattern ko 90° CLOCKWISE (right side) ghuma diya gaya hai.',
-  rot180:  'Original pattern ko 180° (aadha chakkar) ghuma diya gaya hai.',
-  mirrorH: 'Original pattern ko Left-Right (दाएँ-बाएँ) mirror kiya gaya hai.',
-  mirrorV: 'Original pattern ko Up-Down (ऊपर-नीचे) mirror kiya gaya hai.'
-};
-
-function applyTransform(idx, n, type){
-  if (type === 'none') return [...idx];
-  return idx.map(i=>{
-    const r = Math.floor(i/n), c = i % n;
-    switch(type){
-      case 'rot90':   return c*n + (n-1-r);
-      case 'rot180':  return (n-1-r)*n + (n-1-c);
-      case 'mirrorH': return r*n + (n-1-c);
-      case 'mirrorV': return (n-1-r)*n + c;
-      default:        return i;
-    }
-  });
+  const tiles = Math.min(maxTiles, Math.min(10, 3 + Math.floor(level * 0.6)));
+  const showMs = Math.max(3000, 6500 - level * 100);
+  const mathOn = level >= 3;
+  return { n, tiles, showMs, mathOn };
 }
 
 function updateHUD(){
@@ -701,7 +678,6 @@ function startGame(){
   const bestLvl = USER_DATA.profile?.bestLevel || 1;
   G.level = bestLvl;
   G.score = 0;
-  G.lives = 3;
   G.streak = 0;
   G.bestStreak = 0;
   G.rounds = 0;
@@ -711,6 +687,7 @@ function startGame(){
   G.newlyUnlockedCert = null;
   G.wrongInLevel = 0;
   G.revealMode = false;
+  G.lives = 3;
   updateHUD();
   show('s-game');
   startRound();
@@ -720,32 +697,23 @@ function startRound(){
   if(!G.playing) return;
   G.checking = false;
   G.revealMode = false;
+  G.wrongInLevel = 0;
+  G.lives = 3;
   const cfg = levelConfig(G.level);
-  G.transform = cfg.transform;
   G.selected.clear();
+  updateHUD();
 
   buildGrid(cfg.n);
   clearCells();
   lockGrid(true);
   hideTimer();
 
-  const hintBox = $('g-hint');
-  const hintText = $('g-hint-text');
-  hintText.textContent = TRANSFORM_HINT_HINDI[cfg.transform] || TRANSFORM_HINT_HINDI.none;
-  hintBox.style.display = 'flex';
-
   $('btn-reveal').style.display = 'none';
 
   const all = shuffle([...Array(cfg.n*cfg.n).keys()]);
   G.pattern = all.slice(0, cfg.tiles);
 
-  if(cfg.transform !== 'none'){
-    setBanner('RULE PEHLE PADHO', TRANSFORM_LABEL[cfg.transform], 'hot');
-    beep(660,110,'triangle');
-    runTimer(2200, ()=> showPattern(cfg));
-  } else {
-    showPattern(cfg);
-  }
+  showPattern(cfg);
 }
 
 function showPattern(cfg){
@@ -810,7 +778,7 @@ function askMath(cfg){
 }
 
 function beginInput(cfg){
-  setBanner('AB BANAO', TRANSFORM_LABEL[G.transform], G.transform!=='none' ? 'hot' : '');
+  setBanner('AB BANAO', 'Wahi tiles dobara select karo');
   lockGrid(false);
   hideTimer();
   G.acceptInput = true;
@@ -838,9 +806,12 @@ function onCellClick(i){
 }
 
 function checkAnswer(){
-  const expected = new Set(applyTransform(G.pattern, G.n, G.transform));
+  const expected = new Set(G.pattern);
   const chosen   = G.selected;
   const cs = cells();
+  const total = expected.size;
+  // 60% correct needed → 8 tiles me 5 sahi
+  const need = Math.max(1, total - Math.floor(total * 0.4));
 
   let hit = 0;
   cs.forEach((c,idx)=>{
@@ -852,11 +823,10 @@ function checkAnswer(){
     else if(want && !got){ c.classList.add('miss'); }
   });
 
-  const total = expected.size;
-  const perfect = hit === total && chosen.size === total;
+  const passed = hit >= need;
   G.rounds++;
 
-  if(perfect){
+  if(passed){
     G.correct++;
     G.streak++;
     G.bestStreak = Math.max(G.bestStreak, G.streak);
@@ -866,7 +836,6 @@ function checkAnswer(){
     setBanner('✅ SAHI!', `+${gained} points • Streak ${G.streak}`, 'ok');
     updateHUD();
 
-    G.wrongInLevel = 0;
     $('btn-reveal').style.display = 'none';
 
     const milestone = CERT_CONFIG.find(c => c.lvl === G.level);
@@ -883,45 +852,39 @@ function checkAnswer(){
     }, 950);
   } else {
     G.streak = 0;
-    G.lives--;
-    G.wrongInLevel = (G.wrongInLevel || 0) + 1;
+    G.wrongInLevel++;
+    G.lives = Math.max(0, 3 - G.wrongInLevel);
     flash('r'); beep(160,220,'sawtooth',.06);
-    
-    const remaining = 3 - G.wrongInLevel;
-    if(G.wrongInLevel < 3 && G.lives > 0){
-      setBanner('❌ GALAT', `Sahi: ${total} • Tumne: ${hit} • ${remaining} try baaki`, 'bad');
-    } else {
-      setBanner('❌ GALAT', `Sahi: ${total} tiles • Tumne: ${hit}`, 'bad');
-    }
     updateHUD();
 
-    if(G.wrongInLevel >= 3 && G.lives > 0){
+    if(G.wrongInLevel >= 3){
+      // ⭐ 3 wrong → reveal dikhao, phir SAME level complete karke next pe jao
       $('btn-reveal').style.display = 'block';
-      setBanner('😓 3 BAAR GALAT', 'Reveal Answer button dabao', 'bad');
+      setBanner('😓 3 BAAR GALAT', `Sahi: ${total} • Tumne: ${hit} • Reveal dabao`, 'bad');
+    } else {
+      setBanner('❌ GALAT', `${need} sahi chahiye • ${3 - G.wrongInLevel} try baaki`, 'bad');
+      setTimeout(()=>{
+        if(G.playing) startRound();
+      }, 1600);
     }
-
-    setTimeout(()=>{
-      if(G.lives <= 0) endGame(false);
-      else startRound();
-    }, 1500);
   }
 }
 
 /* =========================================================
-   REVEAL ANSWER
+   REVEAL ANSWER → Complete this level & move to next
    ========================================================= */
 $('btn-reveal').onclick = () => {
   if(!G.playing || G.revealMode) return;
-  
+
   G.revealMode = true;
   G.acceptInput = false;
   lockGrid(true);
-  
-  const expected = new Set(applyTransform(G.pattern, G.n, G.transform));
+
+  const expected = new Set(G.pattern);
   const cs = cells();
-  
+
   cs.forEach(c => c.className = 'cell');
-  
+
   let i = 0;
   expected.forEach(idx => {
     setTimeout(() => {
@@ -930,16 +893,17 @@ $('btn-reveal').onclick = () => {
     }, i * 120);
     i++;
   });
-  
-  setBanner('👁 SAHI JAWAB', 'Ab dekh lo, phir wahi level dobara', 'ok');
+
+  setBanner('👁 SAHI JAWAB', 'Level complete! Next level ja rahe ho...', 'ok');
   $('btn-reveal').style.display = 'none';
-  
+
   setTimeout(() => {
     G.revealMode = false;
-    G.wrongInLevel = 0;
-    G.lives = Math.max(1, G.lives);
+    if(G.level >= 500){ endGame(true); return; }
+    G.level++;
+    updateHUD();
     startRound();
-  }, 3500);
+  }, 3200);
 };
 
 /* =========================================================
@@ -983,7 +947,6 @@ async function endGame(isFinal){
   stopTimer();
   hideTimer();
   $('g-math').classList.remove('show');
-  $('g-hint').style.display = 'none';
   $('btn-reveal').style.display = 'none';
 
   const acc = G.rounds ? Math.round((G.correct / G.rounds) * 100) : 0;
@@ -1076,24 +1039,24 @@ function drawCertificate(name, cert){
   const cvs = $('cert-canvas');
   const ctx = cvs.getContext('2d');
   const W = cvs.width, H = cvs.height;
-  
+
   const accent = cert?.color || '#ffd700';
   const accentDark = cert?.accent || '#f59e0b';
-  
+
   const bg = ctx.createLinearGradient(0, 0, W, H);
   bg.addColorStop(0, '#0a0e1f');
   bg.addColorStop(0.5, '#131936');
   bg.addColorStop(1, '#0a0e1f');
   ctx.fillStyle = bg;
   ctx.fillRect(0, 0, W, H);
-  
+
   const rg = ctx.createRadialGradient(W/2, H/2, 50, W/2, H/2, W/1.3);
   rg.addColorStop(0, accent + '15');
   rg.addColorStop(0.5, accentDark + '08');
   rg.addColorStop(1, 'rgba(0,0,0,0)');
   ctx.fillStyle = rg;
   ctx.fillRect(0, 0, W, H);
-  
+
   const holo = ctx.createLinearGradient(0, 0, W, H);
   holo.addColorStop(0, 'rgba(255,0,150,0.04)');
   holo.addColorStop(0.3, 'rgba(0,255,200,0.04)');
@@ -1101,35 +1064,36 @@ function drawCertificate(name, cert){
   holo.addColorStop(1, 'rgba(255,200,0,0.04)');
   ctx.fillStyle = holo;
   ctx.fillRect(0, 0, W, H);
-  
+
+  // ⭐ WATERMARK = @surajprocreater
   ctx.save();
-  ctx.globalAlpha = 0.04;
+  ctx.globalAlpha = 0.055;
   ctx.fillStyle = '#ffffff';
-  ctx.font = 'bold 200px Outfit, sans-serif';
+  ctx.font = 'bold 140px Outfit, sans-serif';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.translate(W/2, H/2);
   ctx.rotate(-Math.PI / 12);
-  ctx.fillText('MINDMASTER', 0, 0);
+  ctx.fillText(WATERMARK_TEXT, 0, 0);
   ctx.restore();
-  
+
   ctx.strokeStyle = accent;
   ctx.lineWidth = 10;
   ctx.strokeRect(30, 30, W - 60, H - 60);
-  
+
   ctx.strokeStyle = accentDark + 'AA';
   ctx.lineWidth = 2.5;
   ctx.strokeRect(52, 52, W - 104, H - 104);
-  
+
   ctx.strokeStyle = accent + '44';
   ctx.lineWidth = 1;
   ctx.strokeRect(64, 64, W - 128, H - 128);
-  
+
   const cornerLen = 100;
   ctx.strokeStyle = accent;
   ctx.lineWidth = 7;
   ctx.lineCap = 'round';
-  
+
   [[52,52,1,1],[W-52,52,-1,1],[52,H-52,1,-1],[W-52,H-52,-1,-1]].forEach(([x,y,dx,dy])=>{
     ctx.beginPath();
     ctx.moveTo(x, y + cornerLen*dy);
@@ -1137,7 +1101,7 @@ function drawCertificate(name, cert){
     ctx.lineTo(x + cornerLen*dx, y);
     ctx.stroke();
   });
-  
+
   [[52,52],[W-52,52],[52,H-52],[W-52,H-52]].forEach(([x,y])=>{
     ctx.beginPath();
     ctx.arc(x, y, 10, 0, Math.PI*2);
@@ -1147,12 +1111,12 @@ function drawCertificate(name, cert){
     ctx.lineWidth = 2;
     ctx.stroke();
   });
-  
+
   drawLogo(ctx, W/2, 140, accent, accentDark);
-  
+
   ctx.textAlign = 'center';
   ctx.textBaseline = 'alphabetic';
-  
+
   const nameGrad = ctx.createLinearGradient(W/2 - 350, 0, W/2 + 350, 0);
   nameGrad.addColorStop(0, accent);
   nameGrad.addColorStop(0.5, '#ffffff');
@@ -1160,11 +1124,11 @@ function drawCertificate(name, cert){
   ctx.fillStyle = nameGrad;
   ctx.font = 'bold 68px Outfit, sans-serif';
   ctx.fillText('MINDMASTER', W/2, 255);
-  
+
   ctx.fillStyle = accentDark;
   ctx.font = '600 18px Outfit, sans-serif';
   ctx.fillText('B R A I N   T R A I N I N G   A C A D E M Y', W/2, 288);
-  
+
   ctx.strokeStyle = accent + '88';
   ctx.lineWidth = 2;
   ctx.beginPath();
@@ -1173,7 +1137,7 @@ function drawCertificate(name, cert){
   ctx.beginPath();
   ctx.moveTo(W/2 + 25, 318); ctx.lineTo(W/2 + 280, 318);
   ctx.stroke();
-  
+
   ctx.beginPath();
   ctx.moveTo(W/2, 306);
   ctx.lineTo(W/2 + 12, 318);
@@ -1182,19 +1146,19 @@ function drawCertificate(name, cert){
   ctx.closePath();
   ctx.fillStyle = accent;
   ctx.fill();
-  
+
   ctx.fillStyle = '#ffffff';
   ctx.font = 'bold 52px Outfit, sans-serif';
   ctx.fillText('CERTIFICATE', W/2, 410);
-  
+
   ctx.fillStyle = accent;
   ctx.font = '600 22px Outfit, sans-serif';
   ctx.fillText('OF ACHIEVEMENT', W/2, 445);
-  
+
   ctx.fillStyle = '#8b95c9';
   ctx.font = '500 22px Outfit, sans-serif';
   ctx.fillText('This certificate is proudly presented to', W/2, 505);
-  
+
   const playerGrad = ctx.createLinearGradient(W/2 - 500, 0, W/2 + 500, 0);
   playerGrad.addColorStop(0, accent);
   playerGrad.addColorStop(0.5, '#ffffff');
@@ -1202,24 +1166,24 @@ function drawCertificate(name, cert){
   ctx.fillStyle = playerGrad;
   ctx.font = 'bold 88px Outfit, sans-serif';
   ctx.fillText(name, W/2, 610);
-  
+
   ctx.strokeStyle = accent + '77';
   ctx.lineWidth = 3;
   ctx.beginPath();
   ctx.moveTo(W/2 - 450, 640); ctx.lineTo(W/2 + 450, 640);
   ctx.stroke();
-  
+
   ctx.fillStyle = '#c5ccef';
   ctx.font = '500 24px Outfit, sans-serif';
   ctx.fillText(`for reaching Level ${cert?.lvl || '—'} and earning the`, W/2, 690);
-  
+
   const badgeText = (cert?.name || 'MASTER').toUpperCase() + ' RANK';
   ctx.font = 'bold 28px Outfit, sans-serif';
   const badgeWidth = ctx.measureText(badgeText).width + 80;
   const badgeX = W/2 - badgeWidth/2;
   const badgeY = 710;
   const badgeH = 52;
-  
+
   const badgeGrad = ctx.createLinearGradient(badgeX, 0, badgeX + badgeWidth, 0);
   badgeGrad.addColorStop(0, accent + '30');
   badgeGrad.addColorStop(0.5, accent + '50');
@@ -1227,91 +1191,91 @@ function drawCertificate(name, cert){
   ctx.fillStyle = badgeGrad;
   roundRect(ctx, badgeX, badgeY, badgeWidth, badgeH, 26);
   ctx.fill();
-  
+
   ctx.strokeStyle = accent;
   ctx.lineWidth = 2.5;
   roundRect(ctx, badgeX, badgeY, badgeWidth, badgeH, 26);
   ctx.stroke();
-  
+
   ctx.fillStyle = accent;
   ctx.font = 'bold 26px Outfit, sans-serif';
   ctx.fillText(badgeText, W/2, badgeY + 36);
-  
+
   const stats = [
     { label: 'IQ SCORE', value: G.finalIQ, color: accent },
     { label: 'LEVEL', value: G.level, color: accentDark },
     { label: 'SCORE', value: G.score, color: '#39e58c' },
     { label: 'ACCURACY', value: G.finalAcc + '%', color: '#ff5c7a' }
   ];
-  
+
   const boxW = 200, boxH = 100, gap = 22;
   const totalW = stats.length * boxW + (stats.length - 1) * gap;
   const startX = (W - totalW) / 2;
   const boxY = 800;
-  
+
   stats.forEach((s, i) => {
     const x = startX + i * (boxW + gap);
-    
+
     ctx.fillStyle = 'rgba(0,0,0,.5)';
     roundRect(ctx, x, boxY, boxW, boxH, 14);
     ctx.fill();
-    
+
     ctx.strokeStyle = s.color + 'AA';
     ctx.lineWidth = 2.5;
     roundRect(ctx, x, boxY, boxW, boxH, 14);
     ctx.stroke();
-    
+
     ctx.fillStyle = s.color;
     ctx.font = 'bold 36px Outfit, sans-serif';
     ctx.textAlign = 'center';
     ctx.fillText(s.value, x + boxW/2, boxY + 50);
-    
+
     ctx.fillStyle = '#7c86b8';
     ctx.font = '600 13px Outfit, sans-serif';
     ctx.fillText(s.label, x + boxW/2, boxY + 78);
   });
-  
+
   const dateStr = new Date().toLocaleDateString('en-GB', {
     day: '2-digit', month: 'short', year: 'numeric'
   });
-  
+
   ctx.textAlign = 'left';
   ctx.fillStyle = '#7c86b8';
   ctx.font = '600 14px Outfit, sans-serif';
   ctx.fillText('ISSUED ON', 130, H - 155);
-  
+
   ctx.fillStyle = '#e8ecff';
   ctx.font = 'bold 22px Outfit, sans-serif';
   ctx.fillText(dateStr, 130, H - 128);
-  
+
   drawSeal(ctx, W - 210, H - 145, accent, accentDark);
-  
+
   const sigX = 130;
   const sigY = H - 85;
-  
+
   ctx.strokeStyle = accent + '88';
   ctx.lineWidth = 2;
   ctx.beginPath();
   ctx.moveTo(sigX, sigY - 8);
   ctx.lineTo(sigX + 320, sigY - 8);
   ctx.stroke();
-  
+
   ctx.fillStyle = accent;
   ctx.font = 'italic bold 28px Outfit, sans-serif';
   ctx.textAlign = 'left';
   ctx.fillText(ADMIN_NAME, sigX + 5, sigY + 22);
-  
+
   ctx.fillStyle = '#8b95c9';
   ctx.font = '600 13px Outfit, sans-serif';
   ctx.fillText('FOUNDER & CREATOR — ' + GAME_NAME, sigX + 5, sigY + 44);
-  
+
   const certId = 'MM-' + Date.now().toString(36).toUpperCase().slice(-8);
-  
+
   ctx.fillStyle = accent + '55';
   ctx.font = '600 12px Outfit, sans-serif';
   ctx.textAlign = 'center';
   ctx.fillText('★ AUTHENTIC CERTIFICATE ★ ' + GAME_NAME + ' ★ VERIFIED BY ' + ADMIN_NAME + ' ★', W/2, H - 70);
-  
+
   ctx.fillStyle = '#7c86b8';
   ctx.font = '500 12px monospace';
   ctx.fillText('CERT ID: ' + certId, W/2, H - 50);
@@ -1319,7 +1283,7 @@ function drawCertificate(name, cert){
 
 function drawLogo(ctx, cx, cy, accent, accentDark){
   const r = 48;
-  
+
   const glow = ctx.createRadialGradient(cx, cy, r*0.3, cx, cy, r*2);
   glow.addColorStop(0, accent + '50');
   glow.addColorStop(1, 'rgba(0,0,0,0)');
@@ -1327,7 +1291,7 @@ function drawLogo(ctx, cx, cy, accent, accentDark){
   ctx.beginPath();
   ctx.arc(cx, cy, r*2, 0, Math.PI*2);
   ctx.fill();
-  
+
   ctx.beginPath();
   for(let i=0; i<6; i++){
     const angle = (Math.PI/3) * i - Math.PI/2;
@@ -1337,22 +1301,22 @@ function drawLogo(ctx, cx, cy, accent, accentDark){
     else ctx.lineTo(x, y);
   }
   ctx.closePath();
-  
+
   const hexGrad = ctx.createLinearGradient(cx - r, cy - r, cx + r, cy + r);
   hexGrad.addColorStop(0, accent);
   hexGrad.addColorStop(1, accentDark);
   ctx.fillStyle = hexGrad;
   ctx.fill();
-  
+
   ctx.strokeStyle = '#ffffff';
   ctx.lineWidth = 2.5;
   ctx.stroke();
-  
+
   ctx.strokeStyle = '#0a0e1f';
   ctx.lineWidth = 3;
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
-  
+
   const spacing = 15;
   for(let row=-1; row<=1; row++){
     for(let col=-1; col<=1; col++){
@@ -1362,7 +1326,7 @@ function drawLogo(ctx, cx, cy, accent, accentDark){
       ctx.fill();
     }
   }
-  
+
   ctx.beginPath();
   ctx.moveTo(cx - spacing, cy - spacing);
   ctx.lineTo(cx, cy);
@@ -1373,7 +1337,7 @@ function drawLogo(ctx, cx, cy, accent, accentDark){
   ctx.moveTo(cx - spacing, cy);
   ctx.lineTo(cx + spacing, cy);
   ctx.stroke();
-  
+
   ctx.beginPath();
   ctx.arc(cx, cy, 6, 0, Math.PI*2);
   ctx.fillStyle = '#ffffff';
@@ -1382,7 +1346,7 @@ function drawLogo(ctx, cx, cy, accent, accentDark){
 
 function drawSeal(ctx, cx, cy, accent, accentDark){
   const r = 75;
-  
+
   const glow = ctx.createRadialGradient(cx, cy, r*0.5, cx, cy, r*1.6);
   glow.addColorStop(0, accent + '35');
   glow.addColorStop(1, 'rgba(0,0,0,0)');
@@ -1390,19 +1354,19 @@ function drawSeal(ctx, cx, cy, accent, accentDark){
   ctx.beginPath();
   ctx.arc(cx, cy, r*1.6, 0, Math.PI*2);
   ctx.fill();
-  
+
   ctx.beginPath();
   ctx.arc(cx, cy, r, 0, Math.PI*2);
   ctx.strokeStyle = accent;
   ctx.lineWidth = 5;
   ctx.stroke();
-  
+
   ctx.beginPath();
   ctx.arc(cx, cy, r - 14, 0, Math.PI*2);
   ctx.strokeStyle = accentDark;
   ctx.lineWidth = 2.5;
   ctx.stroke();
-  
+
   ctx.beginPath();
   ctx.arc(cx, cy, r - 26, 0, Math.PI*2);
   ctx.strokeStyle = accent + '88';
@@ -1410,7 +1374,7 @@ function drawSeal(ctx, cx, cy, accent, accentDark){
   ctx.setLineDash([5, 5]);
   ctx.stroke();
   ctx.setLineDash([]);
-  
+
   const centerGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, r - 26);
   centerGrad.addColorStop(0, accent + '18');
   centerGrad.addColorStop(1, accent + '05');
@@ -1418,7 +1382,7 @@ function drawSeal(ctx, cx, cy, accent, accentDark){
   ctx.beginPath();
   ctx.arc(cx, cy, r - 26, 0, Math.PI*2);
   ctx.fill();
-  
+
   ctx.save();
   ctx.translate(cx, cy);
   ctx.fillStyle = accent;
@@ -1434,10 +1398,10 @@ function drawSeal(ctx, cx, cy, accent, accentDark){
   ctx.closePath();
   ctx.fill();
   ctx.restore();
-  
+
   drawArcText(ctx, 'MINDMASTER', cx, cy, r - 8, -Math.PI/2, 13, accent);
   drawArcText(ctx, 'OFFICIAL • VERIFIED', cx, cy, r - 8, Math.PI/2, 13, accentDark);
-  
+
   ctx.fillStyle = accentDark;
   ctx.font = 'bold 13px Outfit, sans-serif';
   ctx.textAlign = 'center';
@@ -1451,22 +1415,22 @@ function drawArcText(ctx, text, cx, cy, radius, startAngle, fontSize, color){
   ctx.font = `bold ${fontSize}px Outfit, sans-serif`;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  
+
   const angleStep = 0.09;
   const totalAngle = text.length * angleStep;
   let angle = startAngle - totalAngle / 2;
-  
+
   for(let i = 0; i < text.length; i++){
     const char = text[i];
     const x = cx + Math.cos(angle) * radius;
     const y = cy + Math.sin(angle) * radius;
-    
+
     ctx.save();
     ctx.translate(x, y);
     ctx.rotate(angle + Math.PI/2);
     ctx.fillText(char, 0, 0);
     ctx.restore();
-    
+
     angle += angleStep;
   }
   ctx.restore();
@@ -1491,42 +1455,44 @@ function roundRect(ctx, x, y, w, h, r){
    ========================================================= */
 $('btn-name-continue').onclick = async () => {
   const name = $('name-input').value.trim();
+  const pass = $('pass-input').value.trim();
   const err = $('name-err');
   err.textContent = '';
-  
-  if(name.length < 3){
-    err.textContent = '❌ Naam minimum 3 characters ka hona chahiye';
-    return;
-  }
-  if(name.length > 20){
-    err.textContent = '❌ Naam maximum 20 characters';
-    return;
-  }
-  if(!/^[a-zA-Z0-9_ ]+$/.test(name)){
-    err.textContent = '❌ Sirf letters, numbers, _ aur space allowed';
-    return;
-  }
-  
+
+  if(name.length < 3){ err.textContent = '❌ Username minimum 3 characters'; return; }
+  if(name.length > 20){ err.textContent = '❌ Username maximum 20 characters'; return; }
+  if(!/^[a-zA-Z0-9_]+$/.test(name)){ err.textContent = '❌ Sirf letters, numbers, underscore (_) allowed'; return; }
+  if(pass.length < 4){ err.textContent = '❌ Password minimum 4 characters'; return; }
+  if(pass.length > 30){ err.textContent = '❌ Password maximum 30 characters'; return; }
+
   const btn = $('btn-name-continue');
   btn.disabled = true;
-  btn.innerHTML = '<span class="loading"></span> Loading...';
-  
-  await loadOrCreateProfile(name);
-  
+  btn.innerHTML = '<span class="loading"></span> Checking...';
+
+  const result = await loadOrCreateProfile(name, pass);
+
   btn.disabled = false;
   btn.innerHTML = '▶ Continue';
+
+  if(result && result.error){
+    err.textContent = '❌ ' + result.error;
+  }
 };
 
-$('name-input').addEventListener('keypress', e => {
+$('pass-input').addEventListener('keypress', e => {
   if(e.key === 'Enter') $('btn-name-continue').click();
+});
+$('name-input').addEventListener('keypress', e => {
+  if(e.key === 'Enter') $('pass-input').focus();
 });
 
 $('btn-change-user').onclick = () => {
-  if(confirm('Kya aap doosre naam se login karna chahte ho?\n\nAapki current progress save rahegi, bas naye naam se login hoge.')){
+  if(confirm('Logout karna chahte ho?\n\nAapki progress save rahegi — same username + password se dobara login kar sakte ho.')){
     clearUsername();
     CURRENT_USER = null;
     USER_DATA = { profile:{}, scores:{} };
     $('name-input').value = '';
+    $('pass-input').value = '';
     $('name-err').textContent = '';
     show('s-name');
   }
@@ -1563,15 +1529,13 @@ $('btn-final-home').onclick = ()=>{ enterHome(); };
    ========================================================= */
 (async function init(){
   await loadCertConfig();
-  
   const savedName = getSavedUsername();
-  if(savedName){
-    // Pehle se naam saved hai → seedha load karo
-    await loadOrCreateProfile(savedName);
-  } else {
-    // Naya user → naam poochho
-    show('s-name');
-  }
+  if(savedName) $('name-input').value = savedName;
+  show('s-name');
+  setTimeout(()=> {
+    if(savedName) $('pass-input').focus();
+    else $('name-input').focus();
+  }, 200);
 })();
 </script>
 </body>
