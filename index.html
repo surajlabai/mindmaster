@@ -165,12 +165,12 @@
   .cert-preview canvas{display:block;width:100%;height:auto}
 
   .cert-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:16px}
-  .cert-card{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:12px;text-align:center;position:relative;overflow:hidden}
+  .cert-card{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:12px;text-align:center;position:relative;overflow:hidden; cursor:default;}
   .cert-card.locked{opacity:.4;filter:grayscale(1)}
   .cert-card .ico{font-size:28px;margin-bottom:6px}
   .cert-card .nm{font-size:12px;font-weight:800;letter-spacing:.3px}
   .cert-card .lv{font-size:10.5px;color:var(--muted);margin-top:2px}
-  .cert-card.unlocked{border-color:var(--gold);box-shadow:0 0 18px rgba(255,209,102,.15)}
+  .cert-card.unlocked{border-color:var(--gold);box-shadow:0 0 18px rgba(255,209,102,.15); cursor:pointer;}
 
   .user-badge{display:flex;align-items:center;justify-content:space-between;background:var(--panel2);
     border:1px solid var(--line);border-radius:13px;padding:10px 14px;margin-bottom:14px}
@@ -198,6 +198,15 @@
     background:linear-gradient(90deg,#ffd166,#ff9f1c);-webkit-background-clip:text;
     background-clip:text;color:transparent}
   .special-end p{color:var(--muted);font-size:14px;line-height:1.6;margin-bottom:20px}
+
+  /* Replay Section Additions */
+  .replay-box{display:flex; justify-content:space-between; align-items:center; background:var(--panel2); border:1px solid var(--line); border-radius:14px; padding:12px; margin-bottom:16px}
+  .replay-box .title{font-size:12px; font-weight:700; color:var(--accent); margin-bottom:4px; text-transform:uppercase; letter-spacing:1px;}
+  .replay-box .desc{font-size:10.5px; color:var(--muted)}
+  .replay-controls{display:flex; gap:6px;}
+  .replay-controls input{width:70px; padding:8px; border-radius:10px; border:1px solid var(--line); background:var(--bg); color:var(--txt); text-align:center; font-weight:bold; outline:none;}
+  .replay-controls input:focus{border-color:var(--accent)}
+  .replay-controls button{padding:8px 12px; margin:0; font-size:13px; height:auto; width:auto; border-radius:10px;}
 </style>
 </head>
 <body>
@@ -255,6 +264,18 @@
       <div class="stat"><b id="h-best">0</b><span>Best Score</span></div>
       <div class="stat"><b id="h-lvl">1</b><span>Top Level</span></div>
       <div class="stat"><b id="h-streak">0</b><span>Best Streak</span></div>
+    </div>
+
+    <!-- NEW REPLAY SECTION -->
+    <div class="replay-box">
+      <div>
+        <div class="title">Replay Older Levels</div>
+        <div class="desc">Select cleared level</div>
+      </div>
+      <div class="replay-controls">
+        <input type="number" id="h-level-select" min="1" value="1">
+        <button class="btn ghost" id="btn-replay">Play</button>
+      </div>
     </div>
 
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
@@ -390,13 +411,14 @@ const DEFAULT_CERTS = [
   { lvl: 200, name: 'Master',         color: '#a78bfa', accent: '#7c3aed', icon: '👑', desc: 'Master achieved!' },
   { lvl: 250, name: 'Elite Master',   color: '#f472b6', accent: '#ec4899', icon: '💎', desc: 'Elite tier!' },
   { lvl: 300, name: 'Grandmaster',    color: '#fb923c', accent: '#ea580c', icon: '🔥', desc: 'Grandmaster!' },
-  { lvl: 350, name: 'Elite Master',   color: '#38bdf8', accent: '#0ea5e9', icon: '⚡', desc: 'Elite speed!' },
+  { lvl: 350, name: 'Elite grandMaster',   color: '#38bdf8', accent: '#0ea5e9', icon: '⚡', desc: 'Elite speed!' },
   { lvl: 400, name: 'Grandmaster 1',  color: '#10b981', accent: '#059669', icon: '🌟', desc: 'GM Level 1!' },
   { lvl: 450, name: 'Grandmaster 2',  color: '#8b5cf6', accent: '#7c3aed', icon: '💫', desc: 'GM Level 2!' },
   { lvl: 500, name: 'Grandmaster 3',  color: '#ef4444', accent: '#dc2626', icon: '🏆', desc: 'TRUE LEGEND!' },
 ];
 
 let CERT_CONFIG = [...DEFAULT_CERTS];
+let PREV_SCREEN = 's-home'; // Tracks where to go back from Certificate page
 
 /* =========================================================
    HELPERS
@@ -533,7 +555,7 @@ async function loadOrCreateProfile(name, password){
       username: name,
       password: password,
       createdAt: Date.now(),
-      bestScore: 0, bestLevel: 1, bestIQ: 0, bestStreak: 0
+      bestScore: 0, bestLevel: 1, bestIQ: 0, bestStreak: 0, bestAcc: 0
     };
     try{
       await fbPut(`/users/${key}/profile`, newProfile);
@@ -555,6 +577,7 @@ async function loadOrCreateProfile(name, password){
    HOME
    ========================================================= */
 function enterHome(){
+  PREV_SCREEN = 's-home'; // Reset back tracking
   const p = USER_DATA.profile || {};
   $('h-user').textContent = CURRENT_USER?.username || 'player';
   $('h-best').textContent = p.bestScore || 0;
@@ -570,6 +593,8 @@ function enterHome(){
     btn.innerHTML = `▶ Start Brain Test`;
     btn.classList.remove('gold');
   }
+
+  $('h-level-select').value = bestLvl;
 
   renderCertGrid();
   show('s-home');
@@ -595,13 +620,24 @@ function renderCertGrid(){
       <div class="lv">Level ${c.lvl}</div>
     `;
     if(unlocked){
-      div.style.cursor = 'pointer';
-      div.onclick = () => openCertificate(c);
+      div.onclick = () => {
+        openCertificate(c);
+      };
     }
     grid.appendChild(div);
   });
   $('cert-count').textContent = `${unlockedCount} / ${CERT_CONFIG.length}`;
 }
+
+// Replay Feature trigger
+$('btn-replay').onclick = () => {
+  let lvl = parseInt($('h-level-select').value) || 1;
+  const best = getBestLevel();
+  if(lvl > best) lvl = best; // User can't play locked levels
+  if(lvl < 1) lvl = 1;
+  $('h-level-select').value = lvl; // update input visual
+  startGame(lvl);
+};
 
 /* =========================================================
    GAME ENGINE (NO transforms — sirf yaad karna)
@@ -674,9 +710,10 @@ function runTimer(ms, onDone){
 function stopTimer(){ clearInterval(G.timerId); $('g-timer').style.width='100%'; }
 function hideTimer(){ $('g-timerWrap').classList.add('hide'); }
 
-function startGame(){
+// Accept startLevel for Replay feature
+function startGame(startLvl = null){
   const bestLvl = USER_DATA.profile?.bestLevel || 1;
-  G.level = bestLvl;
+  G.level = (startLvl !== null) ? startLvl : bestLvl; // If playing replay, use selected level
   G.score = 0;
   G.streak = 0;
   G.bestStreak = 0;
@@ -858,7 +895,6 @@ function checkAnswer(){
     updateHUD();
 
     if(G.wrongInLevel >= 3){
-      // ⭐ 3 wrong → reveal dikhao, phir SAME level complete karke next pe jao
       $('btn-reveal').style.display = 'block';
       setBanner('😓 3 BAAR GALAT', `Sahi: ${total} • Tumne: ${hit} • Reveal dabao`, 'bad');
     } else {
@@ -870,9 +906,6 @@ function checkAnswer(){
   }
 }
 
-/* =========================================================
-   REVEAL ANSWER → Complete this level & move to next
-   ========================================================= */
 $('btn-reveal').onclick = () => {
   if(!G.playing || G.revealMode) return;
 
@@ -951,14 +984,17 @@ async function endGame(isFinal){
 
   const acc = G.rounds ? Math.round((G.correct / G.rounds) * 100) : 0;
   const reached = Math.max(1, G.level);
-  let iq = Math.round(88 + reached * 4.2 + acc * 0.42 + G.bestStreak * 0.9);
-  iq = Math.max(70, Math.min(200, iq));
+  
+  // NEW DYNAMIC IQ FORMULA: Scales easily upto level 500 for a max IQ around ~300+
+  let iq = Math.round(85 + (reached * 0.35) + (acc * 0.25) + (G.bestStreak * 0.5));
+  iq = Math.max(70, Math.min(500, iq)); // Remove 200 hardcap, allow up to 500
 
   let rank = 'Beginner Brain 🧩';
   if(iq >= 100) rank = 'Sharp Mind ⚡';
   if(iq >= 120) rank = 'Advanced Thinker 🧠';
   if(iq >= 140) rank = 'Genius Zone 🔥';
-  if(iq >= 165) rank = 'IQ9000 Legend 👑';
+  if(iq >= 165) rank = 'Master Brain 👑';
+  if(iq >= 250) rank = 'IQ5000 Legend 🌌';
 
   G.finalIQ = iq;
   G.finalAcc = acc;
@@ -971,7 +1007,7 @@ async function endGame(isFinal){
   $('r-streak').textContent = G.bestStreak;
   $('r-rank').textContent = rank;
 
-  const deg = Math.round(((iq - 70) / 130) * 360);
+  const deg = Math.round(((iq - 70) / 300) * 360); // Adjusted arc for larger max limit
   const ring = $('r-ring');
   ring.style.setProperty('--p','0deg');
   let cur = 0;
@@ -1004,6 +1040,7 @@ async function endGame(isFinal){
     if(G.score > (p.bestScore || 0)) updates.bestScore = G.score;
     if(reached > (p.bestLevel || 0)) updates.bestLevel = reached;
     if(iq > (p.bestIQ || 0)) updates.bestIQ = iq;
+    if(acc > (p.bestAcc || 0)) updates.bestAcc = acc; // Save Best Accuracy!
     if(G.bestStreak > (p.bestStreak || 0)) updates.bestStreak = G.bestStreak;
     if(Object.keys(updates).length){
       await fbPatch(`/users/${CURRENT_USER.key}/profile`, updates);
@@ -1023,11 +1060,37 @@ async function endGame(isFinal){
    CERTIFICATE
    ========================================================= */
 let certData = null;
+let currentCertStats = null; // Store for name-change re-renders
+
 function openCertificate(cert){
   certData = cert;
   $('cert-subtitle').textContent = `${cert.icon} ${cert.name} — Level ${cert.lvl} Milestone`;
   const savedName = CURRENT_USER?.username || 'Brain Master';
   $('cert-name').value = savedName;
+
+  // Decide if we are viewing right after game or from Home history
+  const activeScreen = document.querySelector('.screen.active').id;
+  if(activeScreen !== 's-cert' && activeScreen !== 'ms-bg'){
+      PREV_SCREEN = activeScreen; 
+  }
+
+  if (G.playing || activeScreen === 's-over' || activeScreen === 's-final') {
+    currentCertStats = {
+      iq: G.finalIQ || USER_DATA.profile?.bestIQ || 0,
+      level: G.level || 1,
+      score: G.score || 0,
+      acc: (G.finalAcc || USER_DATA.profile?.bestAcc || 0) + '%'
+    };
+  } else {
+    // Coming from HOME - user wants to view their past cert
+    currentCertStats = {
+      iq: USER_DATA.profile?.bestIQ || 0,
+      level: USER_DATA.profile?.bestLevel || 1,
+      score: USER_DATA.profile?.bestScore || 0,
+      acc: (USER_DATA.profile?.bestAcc || 0) + '%'
+    };
+  }
+
   drawCertificate(savedName, cert);
   show('s-cert');
 }
@@ -1201,19 +1264,20 @@ function drawCertificate(name, cert){
   ctx.font = 'bold 26px Outfit, sans-serif';
   ctx.fillText(badgeText, W/2, badgeY + 36);
 
-  const stats = [
-    { label: 'IQ SCORE', value: G.finalIQ, color: accent },
-    { label: 'LEVEL', value: G.level, color: accentDark },
-    { label: 'SCORE', value: G.score, color: '#39e58c' },
-    { label: 'ACCURACY', value: G.finalAcc + '%', color: '#ff5c7a' }
+  // New accurate stats display setup mapped to our global
+  const statsArr = [
+    { label: 'IQ SCORE', value: currentCertStats.iq, color: accent },
+    { label: 'BEST LEVEL', value: currentCertStats.level, color: accentDark },
+    { label: 'SCORE', value: currentCertStats.score, color: '#39e58c' },
+    { label: 'ACCURACY', value: currentCertStats.acc, color: '#ff5c7a' }
   ];
 
   const boxW = 200, boxH = 100, gap = 22;
-  const totalW = stats.length * boxW + (stats.length - 1) * gap;
+  const totalW = statsArr.length * boxW + (statsArr.length - 1) * gap;
   const startX = (W - totalW) / 2;
   const boxY = 800;
 
-  stats.forEach((s, i) => {
+  statsArr.forEach((s, i) => {
     const x = startX + i * (boxW + gap);
 
     ctx.fillStyle = 'rgba(0,0,0,.5)';
@@ -1498,8 +1562,8 @@ $('btn-change-user').onclick = () => {
   }
 };
 
-$('btn-play').onclick = startGame;
-$('btn-again').onclick = startGame;
+$('btn-play').onclick = () => startGame(null);
+$('btn-again').onclick = () => startGame(null);
 
 $('btn-download').onclick = ()=>{
   const name = (($('cert-name').value.trim() || 'Brain_Master')).replace(/\s+/g,'_');
@@ -1512,9 +1576,9 @@ $('btn-download').onclick = ()=>{
   setTimeout(()=>beep(1160,200,'sine',.07), 130);
 };
 
+// Ensure Back button properly tracks where the user came from
 $('btn-cert-back').onclick = ()=>{
-  if(G.playing) show('s-game');
-  else show('s-over');
+  show(PREV_SCREEN);
 };
 
 $('btn-home').onclick  = ()=>{ enterHome(); };
